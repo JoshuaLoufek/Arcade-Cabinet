@@ -47,6 +47,9 @@ TagManager:
   - name: Floor
     uniqueID: 647938349
     locked: 0
+  - name: Obstacles
+    uniqueID: 620265867
+    locked: 0
   - name: Enemy
     uniqueID: 1834733681
     locked: 0
