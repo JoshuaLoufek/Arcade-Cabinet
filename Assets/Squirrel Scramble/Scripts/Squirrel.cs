@@ -8,8 +8,7 @@ using UnityEngine.InputSystem;
 public class Squirrel : MonoBehaviour
 {
     Movement movement;
-    public int score;
-    public int haul;
+    GameManager gameManager;
 
     private void Awake()
     {
@@ -36,14 +35,9 @@ public class Squirrel : MonoBehaviour
         }
     }
 
-    public void pickupPoints(int points)
+    public void ResetState()
     {
-        haul += points;
-    }
-
-    public void depositPoints()
-    {
-        score += haul;
-        haul = 0;
+        gameObject.SetActive(true);
+        movement.ResetState();
     }
 }
