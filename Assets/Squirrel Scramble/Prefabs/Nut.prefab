@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3167802961315432704}
   - component: {fileID: 5646328799409418722}
+  - component: {fileID: -6322510274040340950}
   m_Layer: 0
   m_Name: Nut
   m_TagString: Untagged
@@ -78,6 +79,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.25, y: 0.25}
   m_EdgeRadius: 0
+--- !u!114 &-6322510274040340950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2523417761775997898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18c7b2ba5521bca41b0301127cc6a7fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  score: 10
 --- !u!1 &6289686748779112090
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,6 +8,8 @@ using UnityEngine.InputSystem;
 public class Squirrel : MonoBehaviour
 {
     Movement movement;
+    public int score;
+    public int haul;
 
     private void Awake()
     {
@@ -32,5 +34,16 @@ public class Squirrel : MonoBehaviour
             if (moveDirection.y > 0) movement.SetDirection(Vector2.up);
             else movement.SetDirection(Vector2.down);
         }
+    }
+
+    public void pickupPoints(int points)
+    {
+        haul += points;
+    }
+
+    public void depositPoints()
+    {
+        score += haul;
+        haul = 0;
     }
 }
