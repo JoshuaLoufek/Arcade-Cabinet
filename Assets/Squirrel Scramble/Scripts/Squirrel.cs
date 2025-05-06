@@ -18,7 +18,7 @@ public class Squirrel : MonoBehaviour
     {
         Vector2 moveDirection = moveValue.Get<Vector2>().normalized;
 
-        // Exit Condition
+        // Exit Condition: The player's movement returned to the resting state
         if (moveDirection == Vector2.zero) return;
 
         // Perform horizontal movement if the x value is larger than the y value
