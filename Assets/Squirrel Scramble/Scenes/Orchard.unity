@@ -3611,7 +3611,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 975343e6bb032a34f92362cfa1f8539c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 8
+  speed: 6
   speedMultiplier: 1
   obstacleLayer:
     serializedVersion: 2
@@ -31241,6 +31241,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 240299844033023597, guid: 03cc336c262343642ba0df2b6cd6b9d4, type: 3}
+      propertyPath: speed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 240299844033023597, guid: 03cc336c262343642ba0df2b6cd6b9d4, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
@@ -31248,6 +31252,10 @@ PrefabInstance:
       propertyPath: initialDirection.x
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1040144424142737649, guid: 03cc336c262343642ba0df2b6cd6b9d4, type: 3}
+      propertyPath: target
+      value: 
+      objectReference: {fileID: 1799102425}
     - target: {fileID: 1040144424142737649, guid: 03cc336c262343642ba0df2b6cd6b9d4, type: 3}
       propertyPath: m_Enabled
       value: 1

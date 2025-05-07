@@ -6,6 +6,17 @@ public class DogWander : DogBehavior
 {
     // Don't forget about your inherited global variables (dog, duration)
 
+    // Whenever wandering is over, begin the chase sequence.
+    private void OnDisable()
+    {
+        this.dog.chase.Enable();
+    }
+
+    private void OnEnable()
+    {
+        Debug.Log("Wander mode was enabled");
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Node node = collision.GetComponent<Node>();
@@ -13,23 +24,16 @@ public class DogWander : DogBehavior
             // 1. a node was collided with
             // 2. this behavior is enabled (important because this can still trigger if disabled)
             // 3. the overriding behavior isn't enabled (being scared overrides wandering around)
-        if (node != null && this.enabled) //&& this.enabled && !this.dog.scared.enabled)
+        if (node != null && this.enabled && !this.dog.scared.enabled)
         {
-            Debug.Log("A node was found and Wander is enabled.");
-            // Create a copy of the list of possible directions and grab the opposite direction the dog is currently traveling.
-            List<Vector2> directionsCopy = new List<Vector2>(node.possibleDirections);
-            Vector2 oppositeDirection = -this.dog.movement.direction;
-
-            // If there is more than one direction to choose from and the opposite direction is possible
-            if (directionsCopy.Count > 1 && directionsCopy.Contains(oppositeDirection)) {
-                directionsCopy.Remove(oppositeDirection);
-            }
+            // Create a copy of the list without the direction the dog just travelled
+            List<Vector2> possibleDirections = ListWithoutOppositeDirection(node);
 
             // Choose a random direction from the list of remaining possible directions
-            int index = Random.Range(0, directionsCopy.Count);
+            int index = Random.Range(0, possibleDirections.Count);
 
             // Set the direction the dog will travel in next
-            this.dog.movement.SetDirection(directionsCopy[index]);
+            this.dog.movement.SetDirection(possibleDirections[index]);
         }
     }
 }
