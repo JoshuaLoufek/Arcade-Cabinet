@@ -46,8 +46,8 @@ public class Dog : MonoBehaviour
         house.Disable();
 
         // TODO: FIX
-        //if (initalBehavior != null) initalBehavior.Enable();
-        wander.Enable();
+        if (initalBehavior != null) initalBehavior.Enable();
+        else wander.Enable();
     }
 
     // Triggered whenever the dog and squirrel collide
