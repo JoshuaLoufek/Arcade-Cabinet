@@ -56,7 +56,7 @@ public class Movement : MonoBehaviour
     
     public void SetDirection(Vector2 newDirection, bool force = false)
     {
-        if(force || !Occupied(newDirection))
+        if (force || !Occupied(newDirection))
         {
             direction = newDirection;
             nextDirection = Vector2.zero;

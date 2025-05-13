@@ -14,14 +14,26 @@ public class DogHouse : DogBehavior
 
     private void OnDisable()
     {
-        StartCoroutine(LeaveHouse());
+        if (this.gameObject.activeSelf) { 
+            StartCoroutine(LeaveHouse());
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log("Collide");
+        if (this.enabled && collision.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
+        {
+            Debug.Log("Is Obstacle!");
+            this.dog.movement.SetDirection(-this.dog.movement.direction, true);
+        }
     }
 
     private IEnumerator LeaveHouse()
     {
         this.dog.movement.SetDirection(Vector2.up, true); // force upwards movement
         this.dog.movement.myRB.isKinematic = true; // turns off physics and collision
-        this.dog.movement.enabled = false;
+        this.dog.movement.enabled = false; // turns off the movement script to allow this function to move the dog exclusively
 
         Vector3 position = this.transform.position;
         float duration = 0.5f;
@@ -49,12 +61,12 @@ public class DogHouse : DogBehavior
             yield return null;
         }
 
-        // go left or right
-        if (Random.Range(0, 2) > 0) this.dog.movement.SetDirection(Vector2.right, true);
+        // Choose whether to go left or right at random
+        if (Random.Range(0, 1) > 0) this.dog.movement.SetDirection(Vector2.right, true);
         else this.dog.movement.SetDirection(Vector2.left, true);
 
-        this.dog.movement.myRB.isKinematic = false;
-        this.dog.movement.enabled = true;
-        this.dog.wander.enabled = true;
+        this.dog.movement.myRB.isKinematic = false; // reenables physics and collisions
+        this.dog.movement.enabled = true; // allows the movement script to take control again
+        this.dog.wander.Enable(); // set the initial behavior to wandering
     }
 }
