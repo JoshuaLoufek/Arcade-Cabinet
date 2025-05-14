@@ -21,10 +21,8 @@ public class DogHouse : DogBehavior
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Collide");
         if (this.enabled && collision.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
         {
-            Debug.Log("Is Obstacle!");
             this.dog.movement.SetDirection(-this.dog.movement.direction, true);
         }
     }

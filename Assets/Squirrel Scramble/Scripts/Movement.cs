@@ -16,12 +16,12 @@ public class Movement : MonoBehaviour
     public Vector2 initialDirection;
     public Vector2 direction { get; private set; } // The direction the object is currently moving.
     public Vector2 nextDirection { get; private set; } // The direction the player can queue for when they reach the next junction.
-    public Vector3 startPosition { get; private set; }
+    public Vector3 startPosition;
 
     private void Awake()
     {
         myRB = GetComponent<Rigidbody2D>();
-        startPosition = transform.position;
+        startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
     }
 
     private void Start()
@@ -31,6 +31,7 @@ public class Movement : MonoBehaviour
 
     public void ResetState()
     {
+        Debug.Log("this is totally being called");
         speedMultiplier = 1f;
         direction = initialDirection;
         nextDirection = Vector2.zero;

@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
             this.dogs[i].ResetState();
         }
 
-        this.squirrel.gameObject.SetActive(true);
+        this.squirrel.ResetState();
     }
 
     private void GameOver()
