@@ -17,10 +17,12 @@ public class Movement : MonoBehaviour
     public Vector2 direction { get; private set; } // The direction the object is currently moving.
     public Vector2 nextDirection { get; private set; } // The direction the player can queue for when they reach the next junction.
     public Vector3 startPosition;
+    private SpriteRenderer sprite;
 
     private void Awake()
     {
         myRB = GetComponent<Rigidbody2D>();
+        sprite = GetComponentInChildren<SpriteRenderer>();
         startPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
     }
 
@@ -56,6 +58,7 @@ public class Movement : MonoBehaviour
     
     public void SetDirection(Vector2 newDirection, bool force = false)
     {
+        // movement functionality
         if (force || !Occupied(newDirection))
         {
             direction = newDirection;
@@ -64,6 +67,21 @@ public class Movement : MonoBehaviour
         else // case when the attempted direction is blocked
         {
             nextDirection = newDirection; // Set the intended direction as the "nextDirection" the object will attempt to move.
+        }
+
+        OrientSprite(newDirection);
+    }
+
+    private void OrientSprite(Vector2 aimDirection)
+    {
+        // sprite appearance
+        if (aimDirection.x > 0f) // specifically ignoring the == 0 clause to let the sprite remain the same.
+        {
+            sprite.flipX = false;
+        }
+        else if (aimDirection.x < 0f)
+        {
+            sprite.flipX = true;
         }
     }
 
