@@ -31,7 +31,6 @@ public class Movement : MonoBehaviour
 
     public void ResetState()
     {
-        Debug.Log("this is totally being called");
         speedMultiplier = 1f;
         direction = initialDirection;
         nextDirection = Vector2.zero;

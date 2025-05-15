@@ -105,7 +105,11 @@ public class GameManager : MonoBehaviour
     public void PickupAcorn(Acorn acorn)
     {
         // TODO: Trigger dogs to be defeatable
-        
+        foreach (Dog dog in dogs)
+        {
+            dog.scared.Enable(acorn.duration);
+        }
+
         PickupNut(acorn);
         CancelInvoke();
         Invoke(nameof(ResetMultiplier), acorn.duration);

@@ -45,12 +45,12 @@ public class Dog : MonoBehaviour
         wander.Disable();
         house.Disable();
 
-        // TODO: FIX
         if (initalBehavior != null) initalBehavior.Enable();
         else wander.Enable();
     }
 
-    // Triggered whenever the dog and squirrel collide
+    // Triggered whenever the dog and squirrel collide.
+    // Handles communications with the game manager.
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Squirrel squirrel = collision.gameObject.GetComponent<Squirrel>();

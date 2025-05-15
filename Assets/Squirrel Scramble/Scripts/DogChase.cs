@@ -11,7 +11,7 @@ public class DogChase : DogBehavior
 
     private void OnEnable()
     {
-        Debug.Log("Chase mode was enabled");
+        // Debug.Log("Chase mode was enabled");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

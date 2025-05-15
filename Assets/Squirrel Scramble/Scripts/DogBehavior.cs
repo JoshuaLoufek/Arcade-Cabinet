@@ -6,11 +6,11 @@ using UnityEngine;
 [RequireComponent(typeof(Dog))]
 public abstract class DogBehavior : MonoBehaviour
 {
-    public Dog dog { get; private set; }
+    public Dog dog;
     public float duration;
     // TODO: Create a "Chase Style" that the dog uses
 
-    private void Awake()
+    public virtual void Awake()
     {
         this.dog = GetComponent<Dog>();
     }
@@ -20,12 +20,11 @@ public abstract class DogBehavior : MonoBehaviour
         Enable(this.duration);
     }
 
-    public virtual void Enable(float time) // THE REASON THE DOG STOPS SHORTLY AFTER STARTING IS BECAUSE OF THE DURATION
+    public virtual void Enable(float time)
     {
-        this.enabled = true;
-
-        CancelInvoke(); // ensures that the old timer is destroyed if a new timer is created
-        Invoke(nameof(Disable), duration);
+        this.enabled = true; // toggle this behavior as active
+        CancelInvoke(); // destroy any old timers before a new timer is created
+        Invoke(nameof(Disable), time); // disablethis new behavior after "time"
     }
 
     public virtual void Disable()
