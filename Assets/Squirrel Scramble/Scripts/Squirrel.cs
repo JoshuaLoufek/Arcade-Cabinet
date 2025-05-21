@@ -35,6 +35,7 @@ public class Squirrel : MonoBehaviour
         }
     }
 
+    // Called from the Game Manager script
     public void ResetState()
     {
         gameObject.SetActive(true);
