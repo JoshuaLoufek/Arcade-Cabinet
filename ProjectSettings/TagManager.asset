@@ -53,6 +53,9 @@ TagManager:
   - name: Pickups
     uniqueID: 3341098053
     locked: 0
+  - name: Projectiles
+    uniqueID: 2375905665
+    locked: 0
   - name: Enemy
     uniqueID: 1834733681
     locked: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class SpaceshipController : MonoBehaviour
 {
@@ -16,18 +17,46 @@ public class SpaceshipController : MonoBehaviour
     int xMovement = 0;
     int yMovement = 0;
     public Vector2 shipMovement;
+    [HideInInspector] public bool shipFiring;
+
+    PlayerInput playerInput;
+    InputAction fireValue;
+
+    public Bullet bullet;
+    public float fireRate = 0.5f;
+    float attackTimer;
 
     private void Awake()
     {
         myRB = GetComponent<Rigidbody2D>();
         shipSprite = GetComponent<SpriteRenderer>();
+        playerInput = GetComponent<PlayerInput>();
+        fireValue = playerInput.actions["Fire"];
+        attackTimer = fireRate;
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         MoveShip();
         UpdateShipSprite();
+        Attack();
+    }
+
+    private void Attack()
+    {
+        if (fireValue.IsPressed() && attackTimer >= fireRate) 
+        {
+            // Fire the ship's laser gun
+            Bullet newBullet = Instantiate(bullet);
+            newBullet.InitializeBullet(this.transform);
+            attackTimer = 0f;
+        }
+        else
+        {
+            // Check if the ship is ready to fire, then increase the timer if it's not ready
+            if (attackTimer <= fireRate) attackTimer += Time.deltaTime;
+        }
     }
 
     public void MoveShip()
