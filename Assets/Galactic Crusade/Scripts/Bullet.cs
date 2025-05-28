@@ -43,16 +43,6 @@ public class Bullet : MonoBehaviour
     }
 
     // Triggered when this bullet collides with something
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        Debug.Log("Bullet collision detected");
-        IDamageable damageableObject = collision.gameObject.GetComponent<IDamageable>();
-        if (damageableObject != null)
-        {
-            damageableObject.Damage(damage);
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         Debug.Log("Bullet collision detected");
