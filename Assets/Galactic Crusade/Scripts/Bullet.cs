@@ -28,7 +28,7 @@ public class Bullet : MonoBehaviour
     private void FixedUpdate()
     {
         MoveBullet();
-        TrackBulletLifetime();
+        CheckLifespan();
     }
     
     private void MoveBullet()
@@ -36,7 +36,7 @@ public class Bullet : MonoBehaviour
         rb.velocity = direction * projectileSpeed;
     }
 
-    private void TrackBulletLifetime()
+    private void CheckLifespan()
     {
         if (lifeTimer > lifespan) Destroy(this.gameObject);
         else lifeTimer += Time.deltaTime;
@@ -45,7 +45,6 @@ public class Bullet : MonoBehaviour
     // Triggered when this bullet collides with something
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("Bullet collision detected");
         IDamageable damageableObject = collision.gameObject.GetComponent<IDamageable>();
         if (damageableObject != null)
         {
