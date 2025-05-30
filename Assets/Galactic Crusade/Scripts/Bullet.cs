@@ -22,7 +22,7 @@ public class Bullet : MonoBehaviour
 
     public void InitializeBullet(Transform origin)
     {
-        this.transform.position = origin.position;
+        this.transform.position = origin.position + new Vector3(0.0625f, 0f, 0f);
     }
 
     private void FixedUpdate()
