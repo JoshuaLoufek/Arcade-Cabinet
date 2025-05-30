@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+// https://www.youtube.com/watch?v=11ofnLOE8pw
 // https://www.youtube.com/watch?v=aVwxzDHniEw
+// https://gamedev.stackexchange.com/questions/27056/how-to-achieve-uniform-speed-of-movement-on-a-bezier-curve
 
 public class BezierFollow : MonoBehaviour
 {
@@ -53,7 +55,12 @@ public class BezierFollow : MonoBehaviour
             // Now cacluate the new position from this new T value
             objectPosition = CalculatePosition(p0, p1, p2, p3, tParam);
 
+            // Move the object to the new position 
             transform.position = objectPosition;
+
+            // Rotate the object based on the current direction travelling in
+            RotateObject(p0, p1, p2, p3, tParam);
+
             yield return new WaitForEndOfFrame();
         }
 
@@ -85,5 +92,38 @@ public class BezierFollow : MonoBehaviour
         float newT = oldT + ((distance * 0.01f) / (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
 
         return newT;
+    }
+
+    void RotateObject(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float oldT)
+    {
+        // These are the derivative vectors that determine velocity 
+        Vector2 v1 = (-3 * p0) + (9 * p1) - (9 * p2) + (3 * p3);
+        Vector2 v2 = (6 * p0) - (12 * p1) + (6 * p2);
+        Vector2 v3 = (-3 * p0) + (3 * p1);
+
+        Vector2 velocityVector = (oldT * oldT * v1 + oldT * v2 + v3);
+
+        float currentAngle = transform.eulerAngles.z;
+        float intendedAngle = Mathf.Atan(velocityVector.x / velocityVector.y) * Mathf.Rad2Deg;
+        
+        //float degToRotate = intendedAngle - currentAngle;
+
+        Debug.Log("Current Angle: " + currentAngle + "\nVelocity Angle: " + intendedAngle + "\nVel_X: " + velocityVector.x + " Vel_Y: " + velocityVector.y);
+
+        // Want to rotate a certain number of degrees from the current angle to get to the intended agnle
+
+        // The Rotate function takes degrees
+        //transform.Rotate(0f, 0f, degToRotate);
+
+        if ((velocityVector.x >= 0 && velocityVector.y <= 0) || (velocityVector.x <= 0 && velocityVector.y <= 0))
+        {
+            transform.rotation = Quaternion.Euler(0,0, -intendedAngle);
+        }
+        else
+        {
+
+            transform.rotation = Quaternion.Euler(0, 0, intendedAngle);
+        }
+        
     }
 }
