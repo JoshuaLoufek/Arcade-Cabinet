@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+
+// https://www.youtube.com/watch?v=aVwxzDHniEw
 
 public class BezierFollow : MonoBehaviour
 {
@@ -13,7 +16,7 @@ public class BezierFollow : MonoBehaviour
 
     private Vector2 objectPosition; // The current position of the object travelling on the curve
 
-    private float speedModifier; // A modifier that dictates how fast the object travels along the curve
+    public float speed = 0.01f;
 
     private bool coroutineAllowed; // Stops a second coroutine from starting when one is already in progress
 
@@ -22,7 +25,6 @@ public class BezierFollow : MonoBehaviour
     {
         routeToGo = 0;
         tParam = 0f;
-        speedModifier = 0.5f;
         coroutineAllowed = true;
     }
 
@@ -45,12 +47,11 @@ public class BezierFollow : MonoBehaviour
 
         while (tParam < 1)
         {
-            tParam += Time.deltaTime * speedModifier;
+            // Finds the new t value based on how far the object should move
+            tParam = CalculateTFromDistance(p0, p1, p2, p3, tParam, speed);
 
-            objectPosition = Mathf.Pow(1 - tParam, 3) * p0 +
-                3 * Mathf.Pow(1 - tParam, 2) * tParam * p1 +
-                3 * (1 - tParam) * Mathf.Pow(tParam, 2) * p2 +
-                Mathf.Pow(tParam, 3) * p3;
+            // Now cacluate the new position from this new T value
+            objectPosition = CalculatePosition(p0, p1, p2, p3, tParam);
 
             transform.position = objectPosition;
             yield return new WaitForEndOfFrame();
@@ -60,5 +61,29 @@ public class BezierFollow : MonoBehaviour
         routeToGo += 1;
         if (routeToGo > routes.Length - 1) routeToGo = 0;
         coroutineAllowed = true;
+    }
+
+    Vector2 CalculatePosition(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
+    {
+        Vector2 position = 
+            p0 * Mathf.Pow(1 - time, 3) + 
+            p1 * 3 * Mathf.Pow(1 - time, 2) * time +
+            p2 * 3 * (1 - time) * Mathf.Pow(time, 2) +
+            p3 * Mathf.Pow(time, 3);
+
+        return position;
+    }
+
+    float CalculateTFromDistance(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float oldT, float distance)
+    {
+        // These are the derivative vectors that determine velocity 
+        Vector2 v1 = (-3 * p0) + (9 * p1) - (9 * p2) + (3 * p3);
+        Vector2 v2 = (6 * p0) - (12 * p1) + (6 * p2);
+        Vector2 v3 = (-3 * p0) + (3 * p1);
+
+        // Determines the new T position from the distance to travel, the current T position, and the velocity vectors
+        float newT = oldT + ((distance * 0.01f) / (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
+
+        return newT;
     }
 }

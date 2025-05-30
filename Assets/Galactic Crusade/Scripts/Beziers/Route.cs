@@ -10,6 +10,13 @@ public class Route : MonoBehaviour
 
     private Vector2 gizmosPosition;
 
+    public float p0, p1, p2, p3;
+
+    private void Awake()
+    {
+        
+    }
+
     private void OnDrawGizmos()
     {
         for (float t = 0; t <= 1f; t += 0.05f)
@@ -28,4 +35,6 @@ public class Route : MonoBehaviour
         Gizmos.DrawLine(new Vector2(controlPoints[2].position.x, controlPoints[2].position.y),
             new Vector2(controlPoints[3].position.x, controlPoints[3].position.y));
     }
+
+    
 }
