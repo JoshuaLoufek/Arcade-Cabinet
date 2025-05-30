@@ -103,26 +103,16 @@ public class BezierFollow : MonoBehaviour
 
         Vector2 velocityVector = (oldT * oldT * v1 + oldT * v2 + v3);
 
-        float currentAngle = transform.eulerAngles.z;
         float intendedAngle = Mathf.Atan(velocityVector.x / velocityVector.y) * Mathf.Rad2Deg;
-        
-        //float degToRotate = intendedAngle - currentAngle;
-
-        Debug.Log("Current Angle: " + currentAngle + "\nVelocity Angle: " + intendedAngle + "\nVel_X: " + velocityVector.x + " Vel_Y: " + velocityVector.y);
 
         // Want to rotate a certain number of degrees from the current angle to get to the intended agnle
-
-        // The Rotate function takes degrees
-        //transform.Rotate(0f, 0f, degToRotate);
-
         if ((velocityVector.x >= 0 && velocityVector.y <= 0) || (velocityVector.x <= 0 && velocityVector.y <= 0))
         {
             transform.rotation = Quaternion.Euler(0,0, -intendedAngle);
         }
         else
         {
-
-            transform.rotation = Quaternion.Euler(0, 0, intendedAngle);
+            transform.rotation = Quaternion.Euler(0, 0, -intendedAngle + 180f);
         }
         
     }
