@@ -231,7 +231,7 @@ GameObject:
   - component: {fileID: 32605907}
   - component: {fileID: 32605906}
   m_Layer: 0
-  m_Name: Route (1)
+  m_Name: Path_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -254,10 +254,9 @@ MonoBehaviour:
   - {fileID: 1089522463}
   - {fileID: 1878744595}
   - {fileID: 664076277}
-  p0: 0
-  p1: 0
-  p2: 0
-  p3: 0
+  disableAllGizmos: 0
+  disableDottedLine: 0
+  disableSolidLines: 0
 --- !u!4 &32605907
 Transform:
   m_ObjectHideFlags: 0
@@ -266,7 +265,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 32605905}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -275,7 +274,7 @@ Transform:
   - {fileID: 1089522463}
   - {fileID: 1878744595}
   - {fileID: 664076277}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 692826538}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &137577257
 GameObject:
@@ -1189,6 +1188,39 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &692826537
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 692826538}
+  m_Layer: 0
+  m_Name: TestRoute
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &692826538
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692826537}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 931843287}
+  - {fileID: 32605907}
+  m_Father: {fileID: 1591019841}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &740302767
 GameObject:
   m_ObjectHideFlags: 0
@@ -1558,7 +1590,7 @@ GameObject:
   - component: {fileID: 931843287}
   - component: {fileID: 931843288}
   m_Layer: 0
-  m_Name: Route
+  m_Name: Path_00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1572,7 +1604,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 931843286}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1581,7 +1613,7 @@ Transform:
   - {fileID: 1194964102}
   - {fileID: 2134019228}
   - {fileID: 1531311309}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 692826538}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &931843288
 MonoBehaviour:
@@ -1600,10 +1632,9 @@ MonoBehaviour:
   - {fileID: 1194964102}
   - {fileID: 2134019228}
   - {fileID: 1531311309}
-  p0: 0
-  p1: 0
-  p2: 0
-  p3: 0
+  disableAllGizmos: 0
+  disableDottedLine: 0
+  disableSolidLines: 0
 --- !u!1 &983006946
 GameObject:
   m_ObjectHideFlags: 0
@@ -1975,6 +2006,38 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1591019840
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1591019841}
+  m_Layer: 0
+  m_Name: Routes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1591019841
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1591019840}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 692826538}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1621302310
 GameObject:
   m_ObjectHideFlags: 0
@@ -2093,7 +2156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f3a5188cd1ad9745bc3c3dcb576d8a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  routes:
+  paths:
   - {fileID: 931843287}
   - {fileID: 32605907}
   speed: 1
@@ -2540,7 +2603,6 @@ SceneRoots:
   - {fileID: 1621302312}
   - {fileID: 368904278}
   - {fileID: 6561213553695662346}
-  - {fileID: 931843287}
-  - {fileID: 32605907}
   - {fileID: 1765958772}
   - {fileID: 416635471}
+  - {fileID: 1591019841}

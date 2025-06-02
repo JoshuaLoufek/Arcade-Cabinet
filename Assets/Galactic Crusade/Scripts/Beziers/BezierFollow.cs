@@ -10,22 +10,26 @@ using UnityEngine;
 
 public class BezierFollow : MonoBehaviour
 {
-    [SerializeField] private Transform[] routes; // represents the routes that the object will follow along
+    [SerializeField] private Route entranceRoute;
+    [SerializeField] private Route attackRoute;
+    [SerializeField] private Route returnRoute;
 
-    private int routeToGo; // Holds the index of the next route the follow
+    [SerializeField] private Transform[] paths; // represents the routes that the object will follow along
+
+    private int nextPath; // Holds the index of the next route the follow
 
     private float tParam; // The "t" (time) parameter for the current route
 
     private Vector2 objectPosition; // The current position of the object travelling on the curve
 
-    public float speed = 0.01f;
+    public float speed = 1f;
 
     private bool coroutineAllowed; // Stops a second coroutine from starting when one is already in progress
 
     // Initializes the object
     private void Start()
     {
-        routeToGo = 0;
+        nextPath = 0;
         tParam = 0f;
         coroutineAllowed = true;
     }
@@ -34,18 +38,18 @@ public class BezierFollow : MonoBehaviour
     {
         if (coroutineAllowed)
         {
-            StartCoroutine(GoByTheRoute(routeToGo));
+            StartCoroutine(GoByTheRoute(nextPath));
         }
     }
 
-    private IEnumerator GoByTheRoute(int routeNumber)
+    private IEnumerator GoByTheRoute(int pathNumber)
     {
         coroutineAllowed = false;
 
-        Vector2 p0 = routes[routeNumber].GetChild(0).position;
-        Vector2 p1 = routes[routeNumber].GetChild(1).position;
-        Vector2 p2 = routes[routeNumber].GetChild(2).position;
-        Vector2 p3 = routes[routeNumber].GetChild(3).position;
+        Vector2 p0 = paths[pathNumber].GetChild(0).position;
+        Vector2 p1 = paths[pathNumber].GetChild(1).position;
+        Vector2 p2 = paths[pathNumber].GetChild(2).position;
+        Vector2 p3 = paths[pathNumber].GetChild(3).position;
 
         while (tParam < 1)
         {
@@ -65,8 +69,8 @@ public class BezierFollow : MonoBehaviour
         }
 
         tParam = 0f;
-        routeToGo += 1;
-        if (routeToGo > routes.Length - 1) routeToGo = 0;
+        nextPath += 1;
+        if (nextPath > paths.Length - 1) nextPath = 0;
         coroutineAllowed = true;
     }
 
@@ -105,8 +109,8 @@ public class BezierFollow : MonoBehaviour
 
         float intendedAngle = Mathf.Atan(velocityVector.x / velocityVector.y) * Mathf.Rad2Deg;
 
-        // Want to rotate a certain number of degrees from the current angle to get to the intended agnle
-        if ((velocityVector.x >= 0 && velocityVector.y <= 0) || (velocityVector.x <= 0 && velocityVector.y <= 0))
+        // Set rotation to the intended angle with an offset
+        if (velocityVector.y <= 0)
         {
             transform.rotation = Quaternion.Euler(0,0, -intendedAngle);
         }
@@ -114,6 +118,5 @@ public class BezierFollow : MonoBehaviour
         {
             transform.rotation = Quaternion.Euler(0, 0, -intendedAngle + 180f);
         }
-        
     }
 }
