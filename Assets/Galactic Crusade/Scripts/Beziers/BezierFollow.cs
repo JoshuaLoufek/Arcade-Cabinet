@@ -8,70 +8,115 @@ using UnityEngine;
 // https://www.youtube.com/watch?v=aVwxzDHniEw
 // https://gamedev.stackexchange.com/questions/27056/how-to-achieve-uniform-speed-of-movement-on-a-bezier-curve
 
+public enum EnemyShipState
+{
+    Entering,
+    Settling,
+    Resting,
+    Attacking,
+    Returning
+}
+
 public class BezierFollow : MonoBehaviour
 {
     [SerializeField] private Route entranceRoute;
     [SerializeField] private Route attackRoute;
     [SerializeField] private Route returnRoute;
 
-    [SerializeField] private Transform[] paths; // represents the routes that the object will follow along
+    public Transform restingLocation;
 
-    private int nextPath; // Holds the index of the next route the follow
-
-    private float tParam; // The "t" (time) parameter for the current route
-
-    private Vector2 objectPosition; // The current position of the object travelling on the curve
-
+    private EnemyShipState state;
     public float speed = 1f;
 
     private bool coroutineAllowed; // Stops a second coroutine from starting when one is already in progress
+    private bool pathInProgress; // Stops the route from starting multiple paths
 
-    // Initializes the object
-    private void Start()
+    private void Awake()
     {
-        nextPath = 0;
-        tParam = 0f;
+        state = EnemyShipState.Entering;
         coroutineAllowed = true;
+        pathInProgress = false;
     }
 
     private void Update()
     {
         if (coroutineAllowed)
         {
-            StartCoroutine(GoByTheRoute(nextPath));
+            Route route = DetermineRoute(state);
+
+            StartCoroutine(GoByTheRoute(route));
+            // StartCoroutine(Old_GoByThePath(nextPath));
         }
     }
 
-    private IEnumerator GoByTheRoute(int pathNumber)
+    private Route DetermineRoute(EnemyShipState currentState)
+    {
+        Route route;
+
+        switch (state)
+        {
+            case EnemyShipState.Entering:
+                route = entranceRoute;
+                break;
+            case EnemyShipState.Attacking:
+                route = attackRoute;
+                break;
+            case EnemyShipState.Returning:
+                route = returnRoute;
+                break;
+            default:
+                route = entranceRoute;
+                break;
+        }
+
+        return route;
+    }
+
+    private IEnumerator GoByTheRoute(Route route)
     {
         coroutineAllowed = false;
-
-        Vector2 p0 = paths[pathNumber].GetChild(0).position;
-        Vector2 p1 = paths[pathNumber].GetChild(1).position;
-        Vector2 p2 = paths[pathNumber].GetChild(2).position;
-        Vector2 p3 = paths[pathNumber].GetChild(3).position;
-
-        while (tParam < 1)
+        int nextPath = 0;
+        
+        while (nextPath < route.paths.Length)
         {
-            // Finds the new t value based on how far the object should move
-            tParam = CalculateTFromDistance(p0, p1, p2, p3, tParam, speed);
-
-            // Now cacluate the new position from this new T value
-            objectPosition = CalculatePosition(p0, p1, p2, p3, tParam);
-
-            // Move the object to the new position 
-            transform.position = objectPosition;
-
-            // Rotate the object based on the current direction travelling in
-            RotateObject(p0, p1, p2, p3, tParam);
+            if (!pathInProgress)
+            {
+                StartCoroutine(TravelThePath(route.paths[nextPath]));
+                nextPath += 1;
+            }
 
             yield return new WaitForEndOfFrame();
         }
 
-        tParam = 0f;
-        nextPath += 1;
-        if (nextPath > paths.Length - 1) nextPath = 0;
         coroutineAllowed = true;
+    }
+
+    // Each time the object finishes a path on the route this function is called so that the object can navigate along the path.
+    private IEnumerator TravelThePath(Transform path)
+    {
+        pathInProgress = true;
+        float t = 0f;
+
+        Vector2 p0 = path.GetChild(0).position;
+        Vector2 p1 = path.GetChild(1).position;
+        Vector2 p2 = path.GetChild(2).position;
+        Vector2 p3 = path.GetChild(3).position;
+
+        while (t < 1f)
+        {
+            // Finds the new t value based on how far the object should move
+            t = CalculateTFromDistance(p0, p1, p2, p3, t, speed);
+
+            // Now cacluate the new position from this new T value and move the object to the new position 
+            transform.position = CalculatePosition(p0, p1, p2, p3, t);
+
+            // Rotate the object based on the current direction travelling in
+            RotateObject(p0, p1, p2, p3, t);
+
+            yield return new WaitForEndOfFrame();
+        }
+
+        pathInProgress = false;
     }
 
     Vector2 CalculatePosition(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
