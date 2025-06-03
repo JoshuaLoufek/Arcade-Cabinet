@@ -15,12 +15,20 @@ public class Path : MonoBehaviour
     public bool disableAllGizmos;
     public bool disableDottedLine;
     public bool disableSolidLines;
+    public bool disableChildSprites;
 
     // This is purely for visuals within the editor. Draws the lines between the control points and the dots for the path.
     private void OnDrawGizmos()
     {
         // An exit clause so that the gizmo lines can be disabled from the editor
-        if (disableAllGizmos) return;
+        if (disableAllGizmos)
+        {
+            DisableChildSprites(false);
+            return;
+        }
+
+        if (disableChildSprites) DisableChildSprites(false);
+        else DisableChildSprites(true);
 
         for (float t = 0; t <= 1f; t += 0.05f)
         {
@@ -41,5 +49,13 @@ public class Path : MonoBehaviour
 
         Gizmos.DrawLine(new Vector2(controlPoints[2].position.x, controlPoints[2].position.y),
             new Vector2(controlPoints[3].position.x, controlPoints[3].position.y));
+    }
+
+    private void DisableChildSprites(bool activationState)
+    {
+        this.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = activationState;
+        this.transform.GetChild(1).GetComponent<SpriteRenderer>().enabled = activationState;
+        this.transform.GetChild(2).GetComponent<SpriteRenderer>().enabled = activationState;
+        this.transform.GetChild(3).GetComponent<SpriteRenderer>().enabled = activationState;
     }
 }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 // https://www.youtube.com/watch?v=11ofnLOE8pw
@@ -21,86 +23,124 @@ public class BezierFollow : MonoBehaviour
 {
     [SerializeField] private Route entranceRoute;
     [SerializeField] private Route attackRoute;
-    [SerializeField] private Route returnRoute;
 
-    public Transform restingLocation;
-
+    public Vector2 restingLocation;
+    
     private EnemyShipState state;
     public float speed = 1f;
 
-    private bool coroutineAllowed; // Stops a second coroutine from starting when one is already in progress
+    private bool newBehaviorAllowed; // Stops a second coroutine from starting when one is already in progress
     private bool pathInProgress; // Stops the route from starting multiple paths
 
     private void Awake()
     {
         state = EnemyShipState.Entering;
-        coroutineAllowed = true;
+        newBehaviorAllowed = true;
         pathInProgress = false;
     }
 
     private void Update()
     {
-        if (coroutineAllowed)
+        if (newBehaviorAllowed)
         {
-            Route route = DetermineRoute(state);
-
-            StartCoroutine(GoByTheRoute(route));
-            // StartCoroutine(Old_GoByThePath(nextPath));
+            switch (state)
+            {
+                case EnemyShipState.Entering:
+                    // Follow the entrance route to completion
+                    StartCoroutine(GoByTheRoute(entranceRoute));
+                    break;
+                case EnemyShipState.Settling:
+                    // Create a new route to get the ship from the end of the entrance route to the final location (Currently uses current location, should be a close approximate)
+                    StartCoroutine(CreateThenFollowSettlingPath(new Vector2(transform.position.x, transform.position.y), restingLocation));
+                    break;
+                case EnemyShipState.Resting:
+                    // Nothing happens here. The ship is waiting for commands
+                    break;
+                case EnemyShipState.Attacking:
+                    // Need to create a new route to get to tthe start of the attack route
+                    StartCoroutine(GoByTheRoute(attackRoute));
+                    break;
+                case EnemyShipState.Returning:
+                    // Need to create a new route to get to the resting location
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
-    private Route DetermineRoute(EnemyShipState currentState)
+    private void ProgressToNextState()
     {
-        Route route;
-
         switch (state)
         {
             case EnemyShipState.Entering:
-                route = entranceRoute;
+                state = EnemyShipState.Settling;
+                break;
+            case EnemyShipState.Settling:
+                state = EnemyShipState.Resting;
+                break;
+            case EnemyShipState.Resting:
+                state = EnemyShipState.Attacking;
                 break;
             case EnemyShipState.Attacking:
-                route = attackRoute;
+                state = EnemyShipState.Returning;
                 break;
             case EnemyShipState.Returning:
-                route = returnRoute;
-                break;
-            default:
-                route = entranceRoute;
+                state = EnemyShipState.Resting;
                 break;
         }
+    }
 
-        return route;
+    private IEnumerator CreateThenFollowSettlingPath(Vector2 start, Vector2 end)
+    {
+        newBehaviorAllowed = false;
+
+        Vector2 p0 = start; // Starting location
+        Vector2 p1 = new Vector2(start.x, end.y);
+        Vector2 p2 = new Vector2(end.x, start.y);
+        Vector2 p3 = end; // Ending location
+
+        StartCoroutine(TravelThePath(p0, p1, p2, p3));
+
+        while (pathInProgress)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        ProgressToNextState();
+        newBehaviorAllowed = true;
     }
 
     private IEnumerator GoByTheRoute(Route route)
     {
-        coroutineAllowed = false;
+        newBehaviorAllowed = false;
         int nextPath = 0;
         
-        while (nextPath < route.paths.Length)
+        while (nextPath < route.paths.Length || pathInProgress)
         {
             if (!pathInProgress)
             {
-                StartCoroutine(TravelThePath(route.paths[nextPath]));
+                Vector2 p0 = route.paths[nextPath].GetChild(0).position;
+                Vector2 p1 = route.paths[nextPath].GetChild(1).position;
+                Vector2 p2 = route.paths[nextPath].GetChild(2).position;
+                Vector2 p3 = route.paths[nextPath].GetChild(3).position;
+
+                StartCoroutine(TravelThePath(p0, p1, p2, p3));
                 nextPath += 1;
             }
 
             yield return new WaitForEndOfFrame();
         }
 
-        coroutineAllowed = true;
+        ProgressToNextState();
+        newBehaviorAllowed = true;
     }
 
     // Each time the object finishes a path on the route this function is called so that the object can navigate along the path.
-    private IEnumerator TravelThePath(Transform path)
+    private IEnumerator TravelThePath(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
     {
         pathInProgress = true;
         float t = 0f;
-
-        Vector2 p0 = path.GetChild(0).position;
-        Vector2 p1 = path.GetChild(1).position;
-        Vector2 p2 = path.GetChild(2).position;
-        Vector2 p3 = path.GetChild(3).position;
 
         while (t < 1f)
         {

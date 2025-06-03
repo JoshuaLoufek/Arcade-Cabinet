@@ -120,9 +120,6 @@ public class SpaceshipController : MonoBehaviour
         shipMovement.x = xMovement;
         shipMovement.y = yMovement;
 
-        Debug.Log(moveDirection);
-        Debug.Log("X: " + xMovement + "\nY: " + yMovement);
-
         // Move the ship
         myRB.velocity = shipMovement * moveSpeed;
     }
