@@ -26,8 +26,6 @@ public class EnemyShipManager : MonoBehaviour
         float xOffset = -((shipSpacing * locationArray.GetLength(0) / 2) - (shipSpacing / 2));
         float yOffset = -((shipSpacing * locationArray.GetLength(1) / 2) - (shipSpacing / 2));
 
-        Debug.Log("yOffset: " + yOffset);
-
         for (int i = 0; i < locationArray.GetLength(0); i++)
         {
             for (int j = 0; j < locationArray.GetLength(1); j++)
@@ -36,8 +34,6 @@ public class EnemyShipManager : MonoBehaviour
 
                 x = xOffset + (shipSpacing * i);
                 y = yOffset + (shipSpacing * j);
-
-                Debug.Log("X, Y: " + x + ", " + y);
 
                 locationArray[i, j] = new Vector2(x, y);
             }

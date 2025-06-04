@@ -15,6 +15,7 @@ public enum EnemyShipState
     Entering,
     Settling,
     Resting,
+    Preparing,
     Attacking,
     Returning
 }
@@ -41,24 +42,28 @@ public class BezierFollow : MonoBehaviour
 
     private void Update()
     {
-        if (newBehaviorAllowed)
+        if (newBehaviorAllowed) // Every frame the ship tries to start a new behavior. However, if a behavior is already active then a new one can't be started.
         {
-            switch (state)
+            switch (state) // When a behavior ends a new state is chosen. This switch statement uses that new state to activate the subsequent behavior.
             {
                 case EnemyShipState.Entering:
                     // Follow the entrance route to completion
-                    StartCoroutine(GoByTheRoute(entranceRoute));
+                    StartCoroutine(FollowTheRoute(entranceRoute));
                     break;
                 case EnemyShipState.Settling:
                     // Create a new route to get the ship from the end of the entrance route to the final location (Currently uses current location, should be a close approximate)
-                    StartCoroutine(CreateThenFollowSettlingPath(new Vector2(transform.position.x, transform.position.y), restingLocation));
+                    StartCoroutine(FollowDynamicSettlingPath(new Vector2(transform.position.x, transform.position.y), restingLocation));
                     break;
                 case EnemyShipState.Resting:
-                    // Nothing happens here. The ship is waiting for commands
+                    // Nothing happens here. The ship is waiting for commands. (Maybe rotate ship if settling and/or preparing sequence change)
+                    StartCoroutine(RestingState());
+                    break;
+                case EnemyShipState.Preparing:
+                    
                     break;
                 case EnemyShipState.Attacking:
                     // Need to create a new route to get to tthe start of the attack route
-                    StartCoroutine(GoByTheRoute(attackRoute));
+                    StartCoroutine(FollowTheRoute(attackRoute));
                     break;
                 case EnemyShipState.Returning:
                     // Need to create a new route to get to the resting location
@@ -73,12 +78,15 @@ public class BezierFollow : MonoBehaviour
     {
         switch (state)
         {
+            // After entering the ship must settle
             case EnemyShipState.Entering:
                 state = EnemyShipState.Settling;
                 break;
+            // After settling the ship is in it's resting location
             case EnemyShipState.Settling:
                 state = EnemyShipState.Resting;
                 break;
+            // After resting the ship must 
             case EnemyShipState.Resting:
                 state = EnemyShipState.Attacking;
                 break;
@@ -91,12 +99,53 @@ public class BezierFollow : MonoBehaviour
         }
     }
 
-    private IEnumerator CreateThenFollowSettlingPath(Vector2 start, Vector2 end)
+    private IEnumerator RestingState()
     {
         newBehaviorAllowed = false;
 
+        // TEMP CODE: Wait in the resting position for three seconds.
+        float timer = 0f;
+        while (timer < 3f)
+        {
+            timer += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        // In the future this will act as a lock to keep the ship in resting mode until it recieves commands the Enemy Ship Manager.
+
+        ProgressToNextState(); // Updates the ship to follow a next state in the process.
+        newBehaviorAllowed = true; // Frees up the ship to start a new behavior
+    }
+
+    private IEnumerator FollowDynamnicPreparingPath(Vector2 start, Vector2 end)
+    {
+        newBehaviorAllowed = false; // Disables new behaviors until this behavior is finished.
+
+        // Dynamically create a
         Vector2 p0 = start; // Starting location
-        Vector2 p1 = new Vector2(start.x, end.y);
+        Vector2 p1 = new Vector2(start.x, start.y + 4f); // These values form a loop up and then down to get to the start of the Attacking Route.
+        Vector2 p2 = new Vector2(end.x, end.y + 4f); // These might need to have some adjustments or an intermediary path if the start and end x-values are too similar.
+        Vector2 p3 = end; // Ending location
+
+        while (pathInProgress)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        StartCoroutine(TravelThePath(p0, p1, p2, p3));
+
+        // Now the attack sequence is ready to begin in full
+        ProgressToNextState(); // Updates the ship to follow a next state in the process.
+        newBehaviorAllowed = true; // Frees up the ship to start a new behavior
+    }
+
+    // Control function for the Settling behavior to get the ship from the end of the Entrance Route to the assigned Resting Location
+    private IEnumerator FollowDynamicSettlingPath(Vector2 start, Vector2 end)
+    {
+        newBehaviorAllowed = false;  // Disables new behaviors until this behavior is finished.
+
+        Vector2 p0 = start; // Starting location
+        Vector2 p1 = new Vector2(start.x, end.y); // These values form an "S" shape to guide the ship home in a smooth and logical fashion.
         Vector2 p2 = new Vector2(end.x, start.y);
         Vector2 p3 = end; // Ending location
 
@@ -107,15 +156,17 @@ public class BezierFollow : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        ProgressToNextState();
-        newBehaviorAllowed = true;
+        ProgressToNextState(); // Updates the ship to follow a next state in the process.
+        newBehaviorAllowed = true; // Frees up the ship to start a new behavior
     }
 
-    private IEnumerator GoByTheRoute(Route route)
+    // Used by the Entering and Attacking behaviors because they have predefined routes that they follow.
+    private IEnumerator FollowTheRoute(Route route)
     {
         newBehaviorAllowed = false;
         int nextPath = 0;
         
+        // Continue the Route behavior while there are still upcoming paths to take or a path is currently in progress 
         while (nextPath < route.paths.Length || pathInProgress)
         {
             if (!pathInProgress)
@@ -130,13 +181,13 @@ public class BezierFollow : MonoBehaviour
             }
 
             yield return new WaitForEndOfFrame();
-        }
+        } // Exit when all paths have been exhausted and the last path is finished
 
         ProgressToNextState();
         newBehaviorAllowed = true;
     }
 
-    // Each time the object finishes a path on the route this function is called so that the object can navigate along the path.
+    // This function is called to have the ship travel along a Bezier Curve path
     private IEnumerator TravelThePath(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
     {
         pathInProgress = true;
