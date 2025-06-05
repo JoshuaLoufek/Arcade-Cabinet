@@ -5,24 +5,100 @@ using UnityEngine;
 
 // https://gamedev.stackexchange.com/questions/82811/implementing-galaga-style-enemy-behavior-in-unity
 
+public enum LocationState
+{
+    Available, // No ship has been assigned here yet
+    Assigned, // A ship has been assigned this location
+}
+
 public class EnemyShipManager : MonoBehaviour
 {
     private Vector2[,] locationArray;
+    private LocationState[,] statusArray;
+
     private float shipSpacing = 1.5f;
     public Transform center;
     public SpaceEnemy enemy;
+    public Route entranceRoute;
+    public Route attackRoute;
+
+    private bool coroutineAllowed = true;
 
     // Let's start off with an 8 x 4 array within a standard space of 12 units by 6 units
 
     private void Awake()
     {
-        locationArray = new Vector2[8, 4];
-        FillLocationArray();
-        SpawnEnemyAtEachLocation();
+        FillLocationArray(8, 4);
+        // SpawnEnemyAtEachLocation();
     }
 
-    private void FillLocationArray()
+    private void Update()
     {
+        if (coroutineAllowed)
+        {
+            StartCoroutine(CreateGroupOfEnemies());
+        }
+    }
+
+    private IEnumerator CreateGroupOfEnemies()
+    {
+        coroutineAllowed = false;
+
+        // Here we determine the following:
+            // what enemies to make
+            // how many of them to make
+            // What entrance route they should take
+            // what formation they should assemble in (aka resting locations)
+
+        SpaceEnemy enemyToSpawn = enemy;
+        int enemyQuantity = 8;
+        Route eRoute = entranceRoute;
+        Route aRoute = attackRoute;
+
+        // Helper variables for the loop
+        float spawnSpeed = 0.5f;
+        int enemiesSpawned = 0;
+        float spawnTimer = 0f;
+        
+        while (enemiesSpawned < enemyQuantity)
+        {
+            spawnTimer += Time.deltaTime;
+
+            if (spawnTimer > spawnSpeed)
+            {
+                SpawnEnemy(enemy, eRoute, aRoute);
+                enemiesSpawned += 1;
+                spawnTimer = 0f;
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+
+        // coroutineAllowed = true;
+    }
+
+    private Vector2 AssignFirstFreeLocation()
+    {
+        for (int i = 0; i < locationArray.GetLength(0); i++)
+        {
+            for (int j = 0; j < locationArray.GetLength(1); j++)
+            {
+                if (statusArray[i, j] == LocationState.Available)
+                {
+                    statusArray[i, j] = LocationState.Assigned;
+                    return locationArray[i, j] + new Vector2(center.transform.position.x, center.transform.position.y);
+                }
+            }
+        }
+
+        return Vector2.zero;
+    }
+
+    private void FillLocationArray(int xLength, int yLength)
+    {
+        locationArray = new Vector2[8, 4];
+        statusArray = new LocationState[8, 4];
+
         float xOffset = -((shipSpacing * locationArray.GetLength(0) / 2) - (shipSpacing / 2));
         float yOffset = -((shipSpacing * locationArray.GetLength(1) / 2) - (shipSpacing / 2));
 
@@ -36,8 +112,20 @@ public class EnemyShipManager : MonoBehaviour
                 y = yOffset + (shipSpacing * j);
 
                 locationArray[i, j] = new Vector2(x, y);
+                statusArray[i, j] = LocationState.Available;
             }
         }
+    }
+
+    // This function will be invoked whenever a coroutine needs to create an enemy.
+    // It is told what enemy prefab will be used and what entrance route to take
+    private void SpawnEnemy(SpaceEnemy enemy, Route entranceRoute, Route attackRoute)
+    {
+        SpaceEnemy newEnemy = Instantiate(enemy, this.transform);
+        newEnemy.GetComponent<BezierFollow>().SetEntranceRoute(entranceRoute);
+        newEnemy.GetComponent<BezierFollow>().SetAttackRoute(attackRoute);
+        newEnemy.GetComponent<BezierFollow>().restingLocation = AssignFirstFreeLocation();
+
     }
 
     private void SpawnEnemyAtEachLocation()
@@ -52,3 +140,7 @@ public class EnemyShipManager : MonoBehaviour
         }
     }
 }
+
+// Terminology
+    // A WAVE of enemies is the entire fleet spawned that wave. A wave must be eliminated entirely before the next wave can spawn. 
+    // A GROUP of enemies is each selection of ships that spawn together in a consistent pattern. Many groups make up a wave.

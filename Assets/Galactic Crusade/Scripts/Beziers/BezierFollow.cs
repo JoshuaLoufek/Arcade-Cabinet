@@ -10,6 +10,14 @@ using UnityEngine;
 // https://www.youtube.com/watch?v=aVwxzDHniEw
 // https://gamedev.stackexchange.com/questions/27056/how-to-achieve-uniform-speed-of-movement-on-a-bezier-curve
 
+// https://math.stackexchange.com/questions/877725/retrieve-the-initial-cubic-b%c3%a9zier-curve-subdivided-in-two-b%c3%a9zier-curves/879213#879213
+// Bezier curves with "C2 Continuity" means that they meet smoothly (C0), have the same tangent direction (C1), and share the same curvature at the point they join (C2)
+// This principle will help me generate dynamic bezier curves that properly flow together.
+    // https://stackoverflow.com/questions/12295773/joining-two-b%C3%A9zier-curves-smoothly-c2-continuous
+    // C0 continuity: P3 = Q0
+    // C1 continuity: P2 - P3 = Q0 - Q1
+    // C2 continuity: P1 - 2 * P2 + P3 = Q0 - 2 * Q1 + Q2
+
 public enum EnemyShipState
 {
     Entering,
@@ -59,10 +67,11 @@ public class BezierFollow : MonoBehaviour
                     StartCoroutine(RestingState());
                     break;
                 case EnemyShipState.Preparing:
-                    
+                    // Create a path from the resting location to the start of the attack route
+                    StartCoroutine(FollowDynamicPreparingPath(new Vector2(transform.position.x, transform.position.y), attackRoute.paths[0].GetChild(0).position));
                     break;
                 case EnemyShipState.Attacking:
-                    // Need to create a new route to get to tthe start of the attack route
+                    // Follow the attack route to completion
                     StartCoroutine(FollowTheRoute(attackRoute));
                     break;
                 case EnemyShipState.Returning:
@@ -86,13 +95,19 @@ public class BezierFollow : MonoBehaviour
             case EnemyShipState.Settling:
                 state = EnemyShipState.Resting;
                 break;
-            // After resting the ship must 
+            // After resting the ship must prepare to attack
             case EnemyShipState.Resting:
+                state = EnemyShipState.Preparing;
+                break;
+            // Once the ship is done preparing the attack will commence
+            case EnemyShipState.Preparing:
                 state = EnemyShipState.Attacking;
                 break;
+            // After attacking the ship begins returning to the resting state
             case EnemyShipState.Attacking:
                 state = EnemyShipState.Returning;
                 break;
+            // Upon returning the ship is in the resting state
             case EnemyShipState.Returning:
                 state = EnemyShipState.Resting;
                 break;
@@ -117,13 +132,13 @@ public class BezierFollow : MonoBehaviour
         newBehaviorAllowed = true; // Frees up the ship to start a new behavior
     }
 
-    private IEnumerator FollowDynamnicPreparingPath(Vector2 start, Vector2 end)
+    private IEnumerator FollowDynamicPreparingPath(Vector2 start, Vector2 end)
     {
         newBehaviorAllowed = false; // Disables new behaviors until this behavior is finished.
 
         // Dynamically create a
         Vector2 p0 = start; // Starting location
-        Vector2 p1 = new Vector2(start.x, start.y + 4f); // These values form a loop up and then down to get to the start of the Attacking Route.
+        Vector2 p1 = new Vector2((start.x + end.x)/2f, start.y + 4f); // These values form a loop up and then down to get to the start of the Attacking Route.
         Vector2 p2 = new Vector2(end.x, end.y + 4f); // These might need to have some adjustments or an intermediary path if the start and end x-values are too similar.
         Vector2 p3 = end; // Ending location
 
@@ -255,4 +270,8 @@ public class BezierFollow : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, 0, -intendedAngle + 180f);
         }
     }
+
+    public void SetEntranceRoute(Route route) { entranceRoute = route; }
+
+    public void SetAttackRoute(Route route) { attackRoute = route; }
 }
