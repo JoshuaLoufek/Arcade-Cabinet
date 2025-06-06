@@ -11,12 +11,12 @@ TagManager:
   - 
   - Water
   - UI
-  - Squirrel
-  - Dog
+  - Player
+  - Enemy
   - Pickup
   - Obstacle
   - Node
-  - 
+  - Enemy Passthrough
   - 
   - 
   - 
