@@ -20,12 +20,12 @@ using UnityEngine;
 
 public enum EnemyShipState
 {
-    Entering,
-    Settling,
-    Resting,
-    Preparing,
-    Attacking,
-    Returning
+    Entering, // Static Route
+    Settling, // Dynamic Path
+    Resting, // Static Location
+    Preparing, // Dynamic Path
+    Attacking, // Static Route
+    Returning // Dynamic Path
 }
 
 public class BezierFollow : MonoBehaviour
@@ -48,6 +48,8 @@ public class BezierFollow : MonoBehaviour
         pathInProgress = false;
     }
 
+    // This is functionally an enemy state machine.
+    // Every frame the ship checks if it currently has an active behavior. If it doesn't, it attempts to start the next one in the sequence.
     private void Update()
     {
         if (newBehaviorAllowed) // Every frame the ship tries to start a new behavior. However, if a behavior is already active then a new one can't be started.
@@ -83,6 +85,7 @@ public class BezierFollow : MonoBehaviour
         }
     }
 
+    // This function is generally called at the end of a behavior to update the model's state to the next one in order.
     private void ProgressToNextState()
     {
         switch (state)
@@ -132,11 +135,11 @@ public class BezierFollow : MonoBehaviour
         newBehaviorAllowed = true; // Frees up the ship to start a new behavior
     }
 
+    // Control function for the Preparing behvaior to get the ship from the Resting Location to the start of the Attacking Route
     private IEnumerator FollowDynamicPreparingPath(Vector2 start, Vector2 end)
     {
         newBehaviorAllowed = false; // Disables new behaviors until this behavior is finished.
 
-        // Dynamically create a
         Vector2 p0 = start; // Starting location
         Vector2 p1 = new Vector2((start.x + end.x)/2f, start.y + 4f); // These values form a loop up and then down to get to the start of the Attacking Route.
         Vector2 p2 = new Vector2(end.x, end.y + 4f); // These might need to have some adjustments or an intermediary path if the start and end x-values are too similar.
@@ -171,6 +174,7 @@ public class BezierFollow : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
+        // Now the Resting Behavior is ready to begin in full
         ProgressToNextState(); // Updates the ship to follow a next state in the process.
         newBehaviorAllowed = true; // Frees up the ship to start a new behavior
     }
