@@ -28,7 +28,7 @@ public enum EnemyShipState
     Returning // Dynamic Path
 }
 
-public class BezierFollow : MonoBehaviour
+public class SpaceEnemyLogic : MonoBehaviour
 {
     [SerializeField] private Route entranceRoute;
     [SerializeField] private Route attackRoute;

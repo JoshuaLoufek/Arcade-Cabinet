@@ -18,7 +18,7 @@ public class EnemyShipManager : MonoBehaviour
 
     private float shipSpacing = 1.5f;
     public Transform center;
-    public SpaceEnemy enemy;
+    public SpaceEnemyHealth enemy;
     public Route entranceRoute;
     public Route attackRoute;
 
@@ -50,7 +50,7 @@ public class EnemyShipManager : MonoBehaviour
             // What entrance route they should take
             // what formation they should assemble in (aka resting locations)
 
-        SpaceEnemy enemyToSpawn = enemy;
+        SpaceEnemyHealth enemyToSpawn = enemy;
         int enemyQuantity = 8;
         Route eRoute = entranceRoute;
         Route aRoute = attackRoute;
@@ -119,12 +119,12 @@ public class EnemyShipManager : MonoBehaviour
 
     // This function will be invoked whenever a coroutine needs to create an enemy.
     // It is told what enemy prefab will be used and what entrance route to take
-    private void SpawnEnemy(SpaceEnemy enemy, Route entranceRoute, Route attackRoute)
+    private void SpawnEnemy(SpaceEnemyHealth enemy, Route entranceRoute, Route attackRoute)
     {
-        SpaceEnemy newEnemy = Instantiate(enemy, this.transform);
-        newEnemy.GetComponent<BezierFollow>().SetEntranceRoute(entranceRoute);
-        newEnemy.GetComponent<BezierFollow>().SetAttackRoute(attackRoute);
-        newEnemy.GetComponent<BezierFollow>().restingLocation = AssignFirstFreeLocation();
+        SpaceEnemyHealth newEnemy = Instantiate(enemy, this.transform);
+        newEnemy.GetComponent<SpaceEnemyLogic>().SetEntranceRoute(entranceRoute);
+        newEnemy.GetComponent<SpaceEnemyLogic>().SetAttackRoute(attackRoute);
+        newEnemy.GetComponent<SpaceEnemyLogic>().restingLocation = AssignFirstFreeLocation();
 
     }
 
@@ -134,7 +134,7 @@ public class EnemyShipManager : MonoBehaviour
         {
             for (int j = 0; j < locationArray.GetLength(1); j++)
             {
-                SpaceEnemy newEnemy = Instantiate(enemy, this.transform);
+                SpaceEnemyHealth newEnemy = Instantiate(enemy, this.transform);
                 newEnemy.transform.localPosition = locationArray[i, j];
             }
         }

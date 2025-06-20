@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpaceEnemy : MonoBehaviour, IDamageable
+public class SpaceEnemyHealth : MonoBehaviour, IDamageable
 {
     // Start is called before the first frame update
     void Start()
