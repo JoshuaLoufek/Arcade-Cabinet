@@ -103,7 +103,7 @@ MonoBehaviour:
   entranceRoute: {fileID: 0}
   attackRoute: {fileID: 0}
   restingLocation: {x: 0, y: 0}
-  speed: 3
+  speed: 2
 --- !u!114 &7148533226041071478
 MonoBehaviour:
   m_ObjectHideFlags: 0

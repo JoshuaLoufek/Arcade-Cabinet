@@ -14,8 +14,6 @@ public class SpaceshipController : MonoBehaviour
     
     public float moveSpeed = 10f;
     bool isMoving = false;
-    int xMovement = 0;
-    int yMovement = 0;
     public Vector2 shipMovement;
     [HideInInspector] public bool shipFiring;
 
@@ -35,7 +33,6 @@ public class SpaceshipController : MonoBehaviour
         attackTimer = fireRate;
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         MoveShip();
@@ -45,16 +42,15 @@ public class SpaceshipController : MonoBehaviour
 
     private void Attack()
     {
-        if (fireValue.IsPressed() && attackTimer >= fireRate) 
+        if (fireValue.IsPressed() && attackTimer >= fireRate) // The ship can attack if the attack button is pressed and the ship is ready to fire.
         {
             // Fire the ship's laser gun
             Bullet newBullet = Instantiate(bullet);
             newBullet.InitializeBullet(this.transform);
             attackTimer = 0f;
         }
-        else
+        else // Check if the ship is ready to fire. Progress the timer if it's not ready yet.
         {
-            // Check if the ship is ready to fire, then increase the timer if it's not ready
             if (attackTimer <= fireRate) attackTimer += Time.deltaTime;
         }
     }
@@ -64,7 +60,8 @@ public class SpaceshipController : MonoBehaviour
         if (isMoving)
         {
             myRB.velocity = shipMovement * moveSpeed;
-        } else
+        } 
+        else
         {
             myRB.velocity = Vector2.zero;
         }
@@ -77,50 +74,49 @@ public class SpaceshipController : MonoBehaviour
         else shipSprite.sprite = center;
     }
 
+    // I want 8 directional movement at a constant speed
     public void OnMove(InputValue moveValue)
     {
+        // Gets a normalized version of the player's movement vector.
         Vector2 moveDirection = moveValue.Get<Vector2>().normalized;
-        
-        // Exit Condition: The player's movement returned to the resting state
+        float xMovementValue, yMovementValue;
+
+        // Exit Condition: The player's movement returned to the resting state.
         if (moveDirection == Vector2.zero)
         {
             isMoving = false;
             return;
         }
 
-        // I want 8 directional movement at a constant speed
-
-        // first lets sort out the x dirction
+        // Translate the x into a usable value.
         if (Mathf.Abs(moveDirection.x) >= 0.5f)
         {
-            if (moveDirection.x > 0) { xMovement = 1; }
-            else { xMovement = -1; }
+            if (moveDirection.x > 0) { xMovementValue = 1; }
+            else { xMovementValue = -1; }
         }
-        else { xMovement = 0; }
+        else { xMovementValue = 0; }
 
-        // now lets get the y diretion
+        // Translate the y into a usable value.
         if (Mathf.Abs(moveDirection.y) >= 0.5f)
         {
-            if (moveDirection.y > 0) { yMovement = 1; }
-            else { yMovement = -1; }
+            if (moveDirection.y > 0) { yMovementValue = 1; }
+            else { yMovementValue = -1; }
         }
-        else { yMovement = 0; }
+        else { yMovementValue = 0; }
 
-        // now to tell the update script if the ship is moving or not
-        if (xMovement == 0 && yMovement == 0)
-        {
-            isMoving = false;
-        }
-        else
-        {
-            isMoving = true;
+        // Update the flag to indicate if the ship is moving or not.
+        if (xMovementValue == 0 && yMovementValue == 0) { isMoving = false; }
+        else { isMoving = true; }
+
+        // For diagonal movement we need to decrease how far is moved on the x and y axis.
+        if (Mathf.Abs(xMovementValue) == 1 && Mathf.Abs(yMovementValue) == 1)
+        {   // 0.7071 is an approximation of sqrt(1/2) which is derived from the pythagorean theorem where c=1 and a=b. c=1 because we want the player to move at "1 speed" in the diagonal c direction
+            xMovementValue = 0.7071f * xMovementValue;
+            yMovementValue = 0.7071f * yMovementValue;
         }
 
         // now set up the ship movement vector
-        shipMovement.x = xMovement;
-        shipMovement.y = yMovement;
-
-        // Move the ship
-        myRB.velocity = shipMovement * moveSpeed;
+        shipMovement.x = xMovementValue;
+        shipMovement.y = yMovementValue;
     }
 }
