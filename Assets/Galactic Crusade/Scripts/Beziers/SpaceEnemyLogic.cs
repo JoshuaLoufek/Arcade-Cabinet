@@ -48,7 +48,7 @@ public class SpaceEnemyLogic : MonoBehaviour
         pathInProgress = false;
     }
 
-    // This is functionally an enemy state machine.
+    // This is the enemy state machine. Eventually the enemy manager will control the preparing and attacking behavior.
     // Every frame the ship checks if it currently has an active behavior. If it doesn't, it attempts to start the next one in the sequence.
     private void Update()
     {
@@ -212,13 +212,15 @@ public class SpaceEnemyLogic : MonoBehaviour
         pathInProgress = true;
         float t = 0f;
 
+        // Velocity is not consistent on a bezier curve. Can't just increase the T value at a constant rate and expect the ship to move at a constant speed.
+        // This while loop simulates constant move speed along a bezier curve. Uses the distance we expect the enemy to move each frame and approximating the T value from that.
         while (t < 1f)
         {
-            // Finds the new t value based on how far the object should move
-            t = CalculateTFromDistance(p0, p1, p2, p3, t, speed);
+            // Finds the new T value based on the distance we expect the enemy to move each frame
+            t = CalculateTimeFromDistanceTravelled(p0, p1, p2, p3, t, speed);
 
-            // Now cacluate the new position from this new T value and move the object to the new position 
-            transform.position = CalculatePosition(p0, p1, p2, p3, t);
+            // Cacluates the new position from the new T value and moves the object there 
+            transform.position = CalculatePositionAtTime(p0, p1, p2, p3, t);
 
             // Rotate the object based on the current direction travelling in
             RotateObject(p0, p1, p2, p3, t);
@@ -229,18 +231,8 @@ public class SpaceEnemyLogic : MonoBehaviour
         pathInProgress = false;
     }
 
-    Vector2 CalculatePosition(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
-    {
-        Vector2 position = 
-            p0 * Mathf.Pow(1 - time, 3) + 
-            p1 * 3 * Mathf.Pow(1 - time, 2) * time +
-            p2 * 3 * (1 - time) * Mathf.Pow(time, 2) +
-            p3 * Mathf.Pow(time, 3);
-
-        return position;
-    }
-
-    float CalculateTFromDistance(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float oldT, float distance)
+    // START - TravelThePath Helper Functions
+    float CalculateTimeFromDistanceTravelled(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float oldT, float distance)
     {
         // These are the derivative vectors that determine velocity 
         Vector2 v1 = (-3 * p0) + (9 * p1) - (9 * p2) + (3 * p3);
@@ -251,6 +243,17 @@ public class SpaceEnemyLogic : MonoBehaviour
         float newT = oldT + ((distance * 0.01f) / (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
 
         return newT;
+    }
+
+    Vector2 CalculatePositionAtTime(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
+    {
+        Vector2 position =
+            p0 * Mathf.Pow(1 - time, 3) +
+            p1 * 3 * Mathf.Pow(1 - time, 2) * time +
+            p2 * 3 * (1 - time) * Mathf.Pow(time, 2) +
+            p3 * Mathf.Pow(time, 3);
+
+        return position;
     }
 
     void RotateObject(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float oldT)
@@ -272,8 +275,9 @@ public class SpaceEnemyLogic : MonoBehaviour
         else
         {
             transform.rotation = Quaternion.Euler(0, 0, -intendedAngle + 180f);
-        }
+        } // NOTE - I understand the math behind this, but there was some guesswork involved to set up the if/else statement properly. May wish to revise in the future.
     }
+    // END - TravelThePath Helper Functions
 
     public void SetEntranceRoute(Route route) { entranceRoute = route; }
 
