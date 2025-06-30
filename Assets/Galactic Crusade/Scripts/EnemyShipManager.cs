@@ -5,6 +5,10 @@ using UnityEngine;
 
 // https://gamedev.stackexchange.com/questions/82811/implementing-galaga-style-enemy-behavior-in-unity
 
+// Terminology
+    // A WAVE of enemies is the entire fleet spawned that wave. A wave must be eliminated entirely before the next wave can spawn. 
+    // A GROUP of enemies is each selection of ships that spawn together in a consistent pattern. Many groups make up a wave.
+
 public enum LocationState
 {
     Available, // No ship has been assigned here yet
@@ -13,8 +17,8 @@ public enum LocationState
 
 public class EnemyShipManager : MonoBehaviour
 {
-    private Vector2[,] locationArray;
-    private LocationState[,] statusArray;
+    private Vector2[,] locationArray; // This holds the list of coordinates that a ship can be positioned at.
+    private LocationState[,] statusArray; // This holds the information about whether or not that position has been assigned or not. 
 
     private float shipSpacing = 1.5f;
     public Transform center;
@@ -32,7 +36,7 @@ public class EnemyShipManager : MonoBehaviour
         // SpawnEnemyAtEachLocation();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (coroutineAllowed)
         {
@@ -124,8 +128,7 @@ public class EnemyShipManager : MonoBehaviour
         SpaceEnemyHealth newEnemy = Instantiate(enemy, this.transform);
         newEnemy.GetComponent<SpaceEnemyLogic>().SetEntranceRoute(entranceRoute);
         newEnemy.GetComponent<SpaceEnemyLogic>().SetAttackRoute(attackRoute);
-        newEnemy.GetComponent<SpaceEnemyLogic>().restingLocation = AssignFirstFreeLocation();
-
+        newEnemy.GetComponent<SpaceEnemyLogic>().SetRestingLocation(AssignFirstFreeLocation());
     }
 
     private void SpawnEnemyAtEachLocation()
@@ -140,7 +143,3 @@ public class EnemyShipManager : MonoBehaviour
         }
     }
 }
-
-// Terminology
-    // A WAVE of enemies is the entire fleet spawned that wave. A wave must be eliminated entirely before the next wave can spawn. 
-    // A GROUP of enemies is each selection of ships that spawn together in a consistent pattern. Many groups make up a wave.

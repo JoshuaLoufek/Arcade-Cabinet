@@ -33,7 +33,7 @@ public class SpaceEnemyLogic : MonoBehaviour
     [SerializeField] private Route entranceRoute;
     [SerializeField] private Route attackRoute;
 
-    public Vector2 restingLocation;
+    private Vector2 restingLocation;
     
     private EnemyShipState state;
     public float speed = 1f;
@@ -282,4 +282,6 @@ public class SpaceEnemyLogic : MonoBehaviour
     public void SetEntranceRoute(Route route) { entranceRoute = route; }
 
     public void SetAttackRoute(Route route) { attackRoute = route; }
+
+    public void SetRestingLocation(Vector2 location) { restingLocation = location; }
 }
