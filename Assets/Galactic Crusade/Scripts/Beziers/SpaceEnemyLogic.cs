@@ -270,7 +270,7 @@ public class SpaceEnemyLogic : MonoBehaviour
         Vector2 v2 = (6 * p0) - (12 * p1) + (6 * p2);
         Vector2 v3 = (-3 * p0) + (3 * p1);
 
-        Debug.Log("v1: " + v1 + ", v2: " + v2 + ", v3: " + v3 + ", oldT: " + oldT + ", mag: " + (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
+        // Debug.Log("v1: " + v1 + ", v2: " + v2 + ", v3: " + v3 + ", oldT: " + oldT + ", mag: " + (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
 
         // Determines the new T position from the distance to travel, the current T position, and the velocity vectors
         float newT = oldT + ((distance * 0.01f) / (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
