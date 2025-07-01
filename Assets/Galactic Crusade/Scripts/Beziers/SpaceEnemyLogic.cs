@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 // https://www.youtube.com/watch?v=11ofnLOE8pw
@@ -78,6 +79,8 @@ public class SpaceEnemyLogic : MonoBehaviour
                     break;
                 case EnemyShipState.Returning:
                     // Need to create a new route to get to the resting location
+                    Debug.Log("Resting Location upon returning path activation: (" + restingLocation.x + ", " + restingLocation.y + ")");
+                    StartCoroutine(FollowDynamicReturningPath(new Vector2(restingLocation.x, restingLocation.y + 10f), restingLocation));
                     break;
                 default:
                     break;
@@ -135,28 +138,6 @@ public class SpaceEnemyLogic : MonoBehaviour
         newBehaviorAllowed = true; // Frees up the ship to start a new behavior
     }
 
-    // Control function for the Preparing behvaior to get the ship from the Resting Location to the start of the Attacking Route
-    private IEnumerator FollowDynamicPreparingPath(Vector2 start, Vector2 end)
-    {
-        newBehaviorAllowed = false; // Disables new behaviors until this behavior is finished.
-
-        Vector2 p0 = start; // Starting location
-        Vector2 p1 = new Vector2((start.x + end.x)/2f, start.y + 4f); // These values form a loop up and then down to get to the start of the Attacking Route.
-        Vector2 p2 = new Vector2(end.x, end.y + 4f); // These might need to have some adjustments or an intermediary path if the start and end x-values are too similar.
-        Vector2 p3 = end; // Ending location
-
-        while (pathInProgress)
-        {
-            yield return new WaitForEndOfFrame();
-        }
-
-        StartCoroutine(TravelThePath(p0, p1, p2, p3));
-
-        // Now the attack sequence is ready to begin in full
-        ProgressToNextState(); // Updates the ship to follow a next state in the process.
-        newBehaviorAllowed = true; // Frees up the ship to start a new behavior
-    }
-
     // Control function for the Settling behavior to get the ship from the end of the Entrance Route to the assigned Resting Location
     private IEnumerator FollowDynamicSettlingPath(Vector2 start, Vector2 end)
     {
@@ -175,6 +156,56 @@ public class SpaceEnemyLogic : MonoBehaviour
         }
 
         // Now the Resting Behavior is ready to begin in full
+        ProgressToNextState(); // Updates the ship to follow a next state in the process.
+        newBehaviorAllowed = true; // Frees up the ship to start a new behavior
+    }
+
+    // Control function for the Preparing behvaior to get the ship from the Resting Location to the start of the Attacking Route
+    private IEnumerator FollowDynamicPreparingPath(Vector2 start, Vector2 end)
+    {
+        newBehaviorAllowed = false; // Disables new behaviors until this behavior is finished.
+
+        Vector2 p0 = start; // Starting location
+        Vector2 p1 = new Vector2((start.x + end.x) / 2f, start.y + 4f); // These values form a loop up and then down to get to the start of the Attacking Route.
+        Vector2 p2 = new Vector2(end.x, end.y + 4f); // These might need to have some adjustments or an intermediary path if the start and end x-values are too similar.
+        Vector2 p3 = end; // Ending location
+
+        StartCoroutine(TravelThePath(p0, p1, p2, p3));
+
+        while (pathInProgress)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        // Now the attack sequence is ready to begin in full
+        ProgressToNextState(); // Updates the ship to follow a next state in the process.
+        newBehaviorAllowed = true; // Frees up the ship to start a new behavior
+    }
+
+    private IEnumerator FollowDynamicReturningPath(Vector2 start, Vector2 end)
+    {
+        newBehaviorAllowed = false;
+        Debug.Log("The dynamic path has started.");
+        Debug.Log("Start: " + start + ", End: " + end);
+        /*
+        Vector2 p0 = start; // Starting location
+        Vector2 p1 = new Vector2(start.x + .1f, start.y + .1f);
+        Vector2 p2 = new Vector2(end.x + .1f, end.y + .1f);
+        Vector2 p3 = end; // Ending location
+        */
+        Vector2 p0 = start; // Starting location
+        Vector2 p1 = start;
+        Vector2 p2 = end;
+        Vector2 p3 = end; // Ending location
+        
+        StartCoroutine(TravelThePath(p0, p1, p2, p3));
+
+        while (pathInProgress)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+
+        Debug.Log("The dynamic path has finished.");
         ProgressToNextState(); // Updates the ship to follow a next state in the process.
         newBehaviorAllowed = true; // Frees up the ship to start a new behavior
     }
@@ -239,19 +270,33 @@ public class SpaceEnemyLogic : MonoBehaviour
         Vector2 v2 = (6 * p0) - (12 * p1) + (6 * p2);
         Vector2 v3 = (-3 * p0) + (3 * p1);
 
+        Debug.Log("v1: " + v1 + ", v2: " + v2 + ", v3: " + v3 + ", oldT: " + oldT + ", mag: " + (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
+
         // Determines the new T position from the distance to travel, the current T position, and the velocity vectors
         float newT = oldT + ((distance * 0.01f) / (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
 
-        return newT;
+        if (newT == Mathf.Infinity || newT == Mathf.NegativeInfinity) return oldT + 0.01f; // catches the edge case scenario where newT ends up being set to infinity or negative infinity.
+        else if (newT > 1f) return 1f; // prevents normal numbers from going beyond the bounds of t [0,1]
+        else return newT;
     }
 
     Vector2 CalculatePositionAtTime(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
     {
+        // Debug.Log("P0: " + p0 + ", P1: " + p1 + ", P2: " + p2 + ", P3: " + p3 + ", T: " + time);
+
         Vector2 position =
             p0 * Mathf.Pow(1 - time, 3) +
             p1 * 3 * Mathf.Pow(1 - time, 2) * time +
             p2 * 3 * (1 - time) * Mathf.Pow(time, 2) +
             p3 * Mathf.Pow(time, 3);
+
+        // Vector2 temp0 = p0 * Mathf.Pow(1 - time, 3);
+        // Vector2 temp1 = p1 * 3 * Mathf.Pow(1 - time, 2) * time;
+        // Vector2 temp2 = p2 * 3 * (1 - time) * Mathf.Pow(time, 2);
+        // Vector2 temp3 = p3 * Mathf.Pow(time, 3);
+
+        // Debug.Log("tP0: " + temp0 + ", tP1: " + temp1 + ", tP2: " + temp2 + ", tP3: " + temp3 + ", T: " + time);
+        // Debug.Log("Position: " + position);
 
         return position;
     }
@@ -266,6 +311,9 @@ public class SpaceEnemyLogic : MonoBehaviour
         Vector2 velocityVector = (oldT * oldT * v1 + oldT * v2 + v3);
 
         float intendedAngle = Mathf.Atan(velocityVector.x / velocityVector.y) * Mathf.Rad2Deg;
+
+        // Exit case to skip rotation whenever the arctangent would return a non existent value
+        if (float.IsNaN(intendedAngle) || intendedAngle == Mathf.Infinity || intendedAngle == Mathf.NegativeInfinity) return;
 
         // Set rotation to the intended angle with an offset
         if (velocityVector.y <= 0)

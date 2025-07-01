@@ -55,7 +55,7 @@ public class EnemyShipManager : MonoBehaviour
             // what formation they should assemble in (aka resting locations)
 
         SpaceEnemyHealth enemyToSpawn = enemy;
-        int enemyQuantity = 8;
+        int enemyQuantity = 1;
         Route eRoute = entranceRoute;
         Route aRoute = attackRoute;
 
