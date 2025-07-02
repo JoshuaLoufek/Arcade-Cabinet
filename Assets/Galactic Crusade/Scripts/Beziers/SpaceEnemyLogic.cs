@@ -39,8 +39,8 @@ public class SpaceEnemyLogic : MonoBehaviour
     private EnemyShipState state;
     public float speed = 1f;
 
-    private bool newBehaviorAllowed; // Stops a second coroutine from starting when one is already in progress
-    private bool pathInProgress; // Stops the route from starting multiple paths
+    private bool newBehaviorAllowed; // Stops a new behvaior coroutine from starting when one is already in progress
+    private bool pathInProgress; // Stops the route from starting a new path while one is actively being followed
 
     private void Awake()
     {
@@ -79,7 +79,6 @@ public class SpaceEnemyLogic : MonoBehaviour
                     break;
                 case EnemyShipState.Returning:
                     // Need to create a new route to get to the resting location
-                    Debug.Log("Resting Location upon returning path activation: (" + restingLocation.x + ", " + restingLocation.y + ")");
                     StartCoroutine(FollowDynamicReturningPath(new Vector2(restingLocation.x, restingLocation.y + 10f), restingLocation));
                     break;
                 default:
@@ -185,16 +184,9 @@ public class SpaceEnemyLogic : MonoBehaviour
     private IEnumerator FollowDynamicReturningPath(Vector2 start, Vector2 end)
     {
         newBehaviorAllowed = false;
-        Debug.Log("The dynamic path has started.");
-        Debug.Log("Start: " + start + ", End: " + end);
-        /*
+
         Vector2 p0 = start; // Starting location
-        Vector2 p1 = new Vector2(start.x + .1f, start.y + .1f);
-        Vector2 p2 = new Vector2(end.x + .1f, end.y + .1f);
-        Vector2 p3 = end; // Ending location
-        */
-        Vector2 p0 = start; // Starting location
-        Vector2 p1 = start;
+        Vector2 p1 = start; // This is a straight line down from above the screen into the resting point.
         Vector2 p2 = end;
         Vector2 p3 = end; // Ending location
         
@@ -205,7 +197,7 @@ public class SpaceEnemyLogic : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
-        Debug.Log("The dynamic path has finished.");
+        // From here the ship goes into the resting state
         ProgressToNextState(); // Updates the ship to follow a next state in the process.
         newBehaviorAllowed = true; // Frees up the ship to start a new behavior
     }
@@ -270,33 +262,25 @@ public class SpaceEnemyLogic : MonoBehaviour
         Vector2 v2 = (6 * p0) - (12 * p1) + (6 * p2);
         Vector2 v3 = (-3 * p0) + (3 * p1);
 
-        // Debug.Log("v1: " + v1 + ", v2: " + v2 + ", v3: " + v3 + ", oldT: " + oldT + ", mag: " + (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
-
         // Determines the new T position from the distance to travel, the current T position, and the velocity vectors
-        float newT = oldT + ((distance * 0.01f) / (oldT * oldT * v1 + oldT * v2 + v3).magnitude);
+        float newT = oldT + ((distance * 0.01f) / ((oldT * oldT * v1) + (oldT * v2) + (v3)).magnitude);
 
-        if (newT == Mathf.Infinity || newT == Mathf.NegativeInfinity) return oldT + 0.01f; // catches the edge case scenario where newT ends up being set to infinity or negative infinity.
-        else if (newT > 1f) return 1f; // prevents normal numbers from going beyond the bounds of t [0,1]
+        // catches the edge case scenario where newT ends up being set to infinity or negative infinity. We want to slightly increment t to nudge it along the right path and away from the position that is producing extreme values.
+        if (newT == Mathf.Infinity || newT == Mathf.NegativeInfinity) newT = oldT + 0.01f; 
+        
+        // This function can never return a t-value outside of the bounds of [0,1]
+        if (newT > 1f) return 1f;
+        else if (newT < 0f) return 0f;
         else return newT;
     }
 
     Vector2 CalculatePositionAtTime(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
     {
-        // Debug.Log("P0: " + p0 + ", P1: " + p1 + ", P2: " + p2 + ", P3: " + p3 + ", T: " + time);
-
         Vector2 position =
             p0 * Mathf.Pow(1 - time, 3) +
             p1 * 3 * Mathf.Pow(1 - time, 2) * time +
             p2 * 3 * (1 - time) * Mathf.Pow(time, 2) +
             p3 * Mathf.Pow(time, 3);
-
-        // Vector2 temp0 = p0 * Mathf.Pow(1 - time, 3);
-        // Vector2 temp1 = p1 * 3 * Mathf.Pow(1 - time, 2) * time;
-        // Vector2 temp2 = p2 * 3 * (1 - time) * Mathf.Pow(time, 2);
-        // Vector2 temp3 = p3 * Mathf.Pow(time, 3);
-
-        // Debug.Log("tP0: " + temp0 + ", tP1: " + temp1 + ", tP2: " + temp2 + ", tP3: " + temp3 + ", T: " + time);
-        // Debug.Log("Position: " + position);
 
         return position;
     }
@@ -327,6 +311,7 @@ public class SpaceEnemyLogic : MonoBehaviour
     }
     // END - TravelThePath Helper Functions
 
+    // Getters and Setters for Private Variables
     public void SetEntranceRoute(Route route) { entranceRoute = route; }
 
     public void SetAttackRoute(Route route) { attackRoute = route; }
