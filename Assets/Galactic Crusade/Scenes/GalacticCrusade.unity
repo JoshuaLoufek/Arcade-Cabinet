@@ -3569,6 +3569,8 @@ MonoBehaviour:
   enemy: {fileID: 7148533226041071478, guid: 430cec1fc6d346645be3dd68bb2a3452, type: 3}
   entranceRoute: {fileID: 50701878}
   attackRoute: {fileID: 502338923}
+  formations:
+  - {fileID: 11400000, guid: c16f5bcc4460b014db3da2d27dad22f1, type: 2}
 --- !u!4 &1799921129
 Transform:
   m_ObjectHideFlags: 0

@@ -1,13 +1,12 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Data;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 // https://gamedev.stackexchange.com/questions/82811/implementing-galaga-style-enemy-behavior-in-unity
 
 // Terminology
-    // A WAVE of enemies is the entire fleet spawned that wave. A wave must be eliminated entirely before the next wave can spawn. 
-    // A GROUP of enemies is each selection of ships that spawn together in a consistent pattern. Many groups make up a wave.
+// A WAVE of enemies is the entire fleet spawned that wave. A wave must be eliminated entirely before the next wave can spawn. 
+// A GROUP of enemies is each selection of ships that spawn together in a consistent pattern. Many groups make up a wave.
 
 public enum LocationState
 {
@@ -15,9 +14,15 @@ public enum LocationState
     Assigned, // A ship has been assigned this location
 }
 
+public enum WaveState
+{
+    Spawning,
+    Attacking,
+}
+
 public class EnemyShipManager : MonoBehaviour
 {
-    private Vector2[,] locationArray; // This holds the list of coordinates that a ship can be positioned at.
+    private Vector2[,] restingLocationArray; // This holds the list of coordinates that a ship can be positioned at.
     private LocationState[,] statusArray; // This holds the information about whether or not that position has been assigned or not. 
 
     private float shipSpacing = 1.5f;
@@ -27,24 +32,91 @@ public class EnemyShipManager : MonoBehaviour
     public Route attackRoute;
 
     private bool coroutineAllowed = true;
+    private bool spawningGroup = false;
 
-    // Let's start off with an 8 x 4 array within a standard space of 12 units by 6 units
+    private WaveState waveState;
+    [SerializeField] EnemyFormation[] formations;
+
 
     private void Awake()
     {
-        FillLocationArray(8, 4);
+        waveState = WaveState.Spawning;
+        InitializeLocationArray(10, 5);
         // SpawnEnemyAtEachLocation();
+    }
+
+    private void Start()
+    {
+        // here we should choose a formation
+        // for now we'll just use the test formation
     }
 
     private void FixedUpdate()
     {
+        // Don't want to allow a new coroutine until all the enemies from the last group have settled or died
+        // Also don't want to allow new spawning coroutines once all of the enemies have been spawned. From there a new attack coroutine should be called instead.
         if (coroutineAllowed)
-        {
-            StartCoroutine(CreateGroupOfEnemies());
-        }
+            switch (waveState)
+            {
+                case WaveState.Spawning:
+                    //StartCoroutine(SpawnGroupOfEnemies());
+                    StartCoroutine(SpawnEnemyFormation(formations[0]));
+                    break;
+            }
     }
 
-    private IEnumerator CreateGroupOfEnemies()
+    private IEnumerator SpawnEnemyFormation(EnemyFormation formation)
+    {
+        coroutineAllowed = false;
+
+        // Cycle through each enemy group in the formation and spawn each of them in order
+        foreach (EnemyGroup enemyGroup in formation.enemyGroups)
+        {
+            // Starts the coroutine to spawn in this group of enemies
+            StartCoroutine(SpawnEnemyGroup(enemyGroup));
+
+            // Locks this coroutine from spawning new enemy groups before the current group has finished spawning. 
+            while (spawningGroup)
+            {
+                yield return new WaitForEndOfFrame();
+            }
+        }
+
+        coroutineAllowed = true;
+    }
+
+    private IEnumerator SpawnEnemyGroup(EnemyGroup enemyGroup)
+    {
+        spawningGroup = true;
+
+        SpaceEnemyHealth enemyToSpawn = enemy;
+        int enemyQuantity = enemyGroup.groupCoordinates.Length;
+        Route eRoute = entranceRoute;
+        Route aRoute = attackRoute;
+
+        // Helper variables for the loop
+        float spawnSpeed = 0.5f;
+        int enemiesSpawned = 0;
+        float spawnTimer = 0f;
+
+        while (enemiesSpawned < enemyQuantity)
+        {
+            spawnTimer += Time.deltaTime;
+
+            if (spawnTimer > spawnSpeed)
+            {
+                SpawnEnemy(enemyToSpawn, eRoute, aRoute);
+                enemiesSpawned += 1;
+                spawnTimer = 0f;
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+
+        spawningGroup = false;
+    }
+
+    private IEnumerator SpawnGroupOfEnemies()
     {
         coroutineAllowed = false;
 
@@ -52,7 +124,7 @@ public class EnemyShipManager : MonoBehaviour
             // what enemies to make
             // how many of them to make
             // What entrance route they should take
-            // what formation they should assemble in (aka resting locations)
+            // what formation they should assemble in (in other words, what are their resting locations?)
 
         SpaceEnemyHealth enemyToSpawn = enemy;
         int enemyQuantity = 8;
@@ -70,7 +142,7 @@ public class EnemyShipManager : MonoBehaviour
 
             if (spawnTimer > spawnSpeed)
             {
-                SpawnEnemy(enemy, eRoute, aRoute);
+                SpawnEnemy(enemyToSpawn, eRoute, aRoute);
                 enemiesSpawned += 1;
                 spawnTimer = 0f;
             }
@@ -78,19 +150,21 @@ public class EnemyShipManager : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
+        // have a check here to determine if this is the last group of enemies that needed to be spawned. If so, change to attack mode.
+        
         // coroutineAllowed = true;
     }
 
     private Vector2 AssignFirstFreeLocation()
     {
-        for (int i = 0; i < locationArray.GetLength(0); i++)
+        for (int i = 0; i < restingLocationArray.GetLength(0); i++)
         {
-            for (int j = 0; j < locationArray.GetLength(1); j++)
+            for (int j = 0; j < restingLocationArray.GetLength(1); j++)
             {
                 if (statusArray[i, j] == LocationState.Available)
                 {
                     statusArray[i, j] = LocationState.Assigned;
-                    return locationArray[i, j] + new Vector2(center.transform.position.x, center.transform.position.y);
+                    return restingLocationArray[i, j] + new Vector2(center.transform.position.x, center.transform.position.y);
                 }
             }
         }
@@ -98,24 +172,24 @@ public class EnemyShipManager : MonoBehaviour
         return Vector2.zero;
     }
 
-    private void FillLocationArray(int xLength, int yLength)
+    private void InitializeLocationArray(int xLength, int yLength)
     {
-        locationArray = new Vector2[8, 4];
-        statusArray = new LocationState[8, 4];
+        restingLocationArray = new Vector2[xLength, yLength];
+        statusArray = new LocationState[xLength, yLength];
 
-        float xOffset = -((shipSpacing * locationArray.GetLength(0) / 2) - (shipSpacing / 2));
-        float yOffset = -((shipSpacing * locationArray.GetLength(1) / 2) - (shipSpacing / 2));
+        float xOffset = -((shipSpacing * restingLocationArray.GetLength(0) / 2) - (shipSpacing / 2));
+        float yOffset = -((shipSpacing * restingLocationArray.GetLength(1) / 2) - (shipSpacing / 2));
 
-        for (int i = 0; i < locationArray.GetLength(0); i++)
+        for (int i = 0; i < restingLocationArray.GetLength(0); i++)
         {
-            for (int j = 0; j < locationArray.GetLength(1); j++)
+            for (int j = 0; j < restingLocationArray.GetLength(1); j++)
             {
                 float x, y;
 
                 x = xOffset + (shipSpacing * i);
                 y = yOffset + (shipSpacing * j);
 
-                locationArray[i, j] = new Vector2(x, y);
+                restingLocationArray[i, j] = new Vector2(x, y);
                 statusArray[i, j] = LocationState.Available;
             }
         }
@@ -133,12 +207,12 @@ public class EnemyShipManager : MonoBehaviour
 
     private void SpawnEnemyAtEachLocation()
     {
-        for (int i = 0; i < locationArray.GetLength(0); i++)
+        for (int i = 0; i < restingLocationArray.GetLength(0); i++)
         {
-            for (int j = 0; j < locationArray.GetLength(1); j++)
+            for (int j = 0; j < restingLocationArray.GetLength(1); j++)
             {
                 SpaceEnemyHealth newEnemy = Instantiate(enemy, this.transform);
-                newEnemy.transform.localPosition = locationArray[i, j];
+                newEnemy.transform.localPosition = restingLocationArray[i, j];
             }
         }
     }
