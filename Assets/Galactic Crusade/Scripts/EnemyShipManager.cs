@@ -82,6 +82,7 @@ public class EnemyShipManager : MonoBehaviour
             }
         }
 
+        waveState = WaveState.Attacking;
         coroutineAllowed = true;
     }
 
@@ -105,7 +106,7 @@ public class EnemyShipManager : MonoBehaviour
 
             if (spawnTimer > spawnSpeed)
             {
-                SpawnEnemy(enemyToSpawn, eRoute, aRoute);
+                SpawnEnemy(enemyToSpawn, eRoute, aRoute, enemyGroup.groupCoordinates[enemiesSpawned]);
                 enemiesSpawned += 1;
                 spawnTimer = 0f;
             }
@@ -114,45 +115,6 @@ public class EnemyShipManager : MonoBehaviour
         }
 
         spawningGroup = false;
-    }
-
-    private IEnumerator SpawnGroupOfEnemies()
-    {
-        coroutineAllowed = false;
-
-        // Here we determine the following:
-            // what enemies to make
-            // how many of them to make
-            // What entrance route they should take
-            // what formation they should assemble in (in other words, what are their resting locations?)
-
-        SpaceEnemyHealth enemyToSpawn = enemy;
-        int enemyQuantity = 8;
-        Route eRoute = entranceRoute;
-        Route aRoute = attackRoute;
-
-        // Helper variables for the loop
-        float spawnSpeed = 0.5f;
-        int enemiesSpawned = 0;
-        float spawnTimer = 0f;
-        
-        while (enemiesSpawned < enemyQuantity)
-        {
-            spawnTimer += Time.deltaTime;
-
-            if (spawnTimer > spawnSpeed)
-            {
-                SpawnEnemy(enemyToSpawn, eRoute, aRoute);
-                enemiesSpawned += 1;
-                spawnTimer = 0f;
-            }
-
-            yield return new WaitForEndOfFrame();
-        }
-
-        // have a check here to determine if this is the last group of enemies that needed to be spawned. If so, change to attack mode.
-        
-        // coroutineAllowed = true;
     }
 
     private Vector2 AssignFirstFreeLocation()
@@ -197,12 +159,12 @@ public class EnemyShipManager : MonoBehaviour
 
     // This function will be invoked whenever a coroutine needs to create an enemy.
     // It is told what enemy prefab will be used and what entrance route to take
-    private void SpawnEnemy(SpaceEnemyHealth enemy, Route entranceRoute, Route attackRoute)
+    private void SpawnEnemy(SpaceEnemyHealth enemy, Route entranceRoute, Route attackRoute, Vector2 arrayPosition)
     {
         SpaceEnemyHealth newEnemy = Instantiate(enemy, this.transform);
         newEnemy.GetComponent<SpaceEnemyLogic>().SetEntranceRoute(entranceRoute);
         newEnemy.GetComponent<SpaceEnemyLogic>().SetAttackRoute(attackRoute);
-        newEnemy.GetComponent<SpaceEnemyLogic>().SetRestingLocation(AssignFirstFreeLocation());
+        newEnemy.GetComponent<SpaceEnemyLogic>().SetRestingLocation(restingLocationArray[(int)arrayPosition.x, (int)arrayPosition.y] + new Vector2(center.transform.position.x, center.transform.position.y));
     }
 
     private void SpawnEnemyAtEachLocation()

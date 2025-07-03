@@ -125,7 +125,7 @@ public class SpaceEnemyLogic : MonoBehaviour
 
         // TEMP CODE: Wait in the resting position for three seconds.
         float timer = 0f;
-        while (timer < 3f)
+        while (timer < 3f || true)
         {
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
