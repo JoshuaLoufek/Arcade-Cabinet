@@ -31,16 +31,29 @@ public enum EnemyShipState
 
 public class SpaceEnemyLogic : MonoBehaviour
 {
+    // INFORMATION INTRINSIC TO THIS SHIP
+    
+    // Each enemy prefab contains a list of available entrance and attack routes that it can follow. 
+    public List<Route> entranceRoutes;
+    public List<Route> attackRoutes;
+    
+    // Control variables for the enemy state machine
+    private EnemyShipState state;
+    private bool newBehaviorAllowed; // Stops a new behvaior coroutine from starting when one is already in progress
+    private bool pathInProgress; // Stops the route from starting a new path while one is actively being followed
+    
+    // Qualties of the ship
+    public float speed = 1f;
+
+    // INFORMATION RECEIVED FROM THE ENEMY SHIP MANAGER
+    private Vector2 restingLocation;
+    private bool attackSignal;
+
+    // Outdated variables that will be replaced with the lists of routes above -------------------
+
     [SerializeField] private Route entranceRoute;
     [SerializeField] private Route attackRoute;
 
-    private Vector2 restingLocation;
-    
-    private EnemyShipState state;
-    public float speed = 1f;
-
-    private bool newBehaviorAllowed; // Stops a new behvaior coroutine from starting when one is already in progress
-    private bool pathInProgress; // Stops the route from starting a new path while one is actively being followed
 
     private void Awake()
     {
@@ -125,7 +138,7 @@ public class SpaceEnemyLogic : MonoBehaviour
 
         // TEMP CODE: Wait in the resting position for three seconds.
         float timer = 0f;
-        while (timer < 3f || true)
+        while (timer < 3f)
         {
             timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
@@ -185,9 +198,13 @@ public class SpaceEnemyLogic : MonoBehaviour
     {
         newBehaviorAllowed = false;
 
+        float thirdDistance = (start.y - end.y) / 3;
+        float y1 = start.y - thirdDistance;
+        float y2 = end.y + thirdDistance;
+
         Vector2 p0 = start; // Starting location
-        Vector2 p1 = start; // This is a straight line down from above the screen into the resting point.
-        Vector2 p2 = end;
+        Vector2 p1 = new Vector2(start.x, y1); // This is a straight line down from above the screen into the resting point.
+        Vector2 p2 = new Vector2(end.x, y2);
         Vector2 p3 = end; // Ending location
         
         StartCoroutine(TravelThePath(p0, p1, p2, p3));
@@ -317,4 +334,6 @@ public class SpaceEnemyLogic : MonoBehaviour
     public void SetAttackRoute(Route route) { attackRoute = route; }
 
     public void SetRestingLocation(Vector2 location) { restingLocation = location; }
+
+    public void SetAttackSignal(bool signal) { attackSignal = signal; }
 }
