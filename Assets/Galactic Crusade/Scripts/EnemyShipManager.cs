@@ -30,12 +30,14 @@ public class EnemyShipManager : MonoBehaviour
     public SpaceEnemyHealth enemy;
     public Route entranceRoute;
     public Route attackRoute;
+    public Route testRoute;
 
     private bool coroutineAllowed = true;
     private bool spawningGroup = false;
 
     private WaveState waveState;
     [SerializeField] EnemyFormation[] formations;
+    private EnemyFormation formation;
 
 
     private void Awake()
@@ -56,15 +58,33 @@ public class EnemyShipManager : MonoBehaviour
         // Don't want to allow a new coroutine until all the enemies from the last group have settled or died
         // Also don't want to allow new spawning coroutines once all of the enemies have been spawned. From there a new attack coroutine should be called instead.
         if (coroutineAllowed)
+        {
             switch (waveState)
             {
                 case WaveState.Spawning:
-                    //StartCoroutine(SpawnGroupOfEnemies());
-                    StartCoroutine(SpawnEnemyFormation(formations[0]));
+                    // Choose an enemy formation
+                    formation = ChooseEnemyFormation();
+                    // Spawn the enemy formation
+                    StartCoroutine(SpawnEnemyFormation(formation));
+                    break;
+                case WaveState.Attacking:
+                    // Start the attacking coroutine. Decisions will be made from within this behavior.
+
                     break;
             }
+        }
     }
 
+    private EnemyFormation ChooseEnemyFormation()
+    {
+        // Choose an enemy formation at complete random.
+        // TODO: Classify formations based on difficulty and use that to weight the choice
+        int choice = Random.Range(0, formations.Length);
+        Debug.Log("There are " + formations.Length + " to choose from. Formation #" + choice + " was chosen.");
+        return formations[choice];
+    }
+
+    // This is the control function for spawning the entire formation of enemies
     private IEnumerator SpawnEnemyFormation(EnemyFormation formation)
     {
         coroutineAllowed = false;
@@ -74,12 +94,8 @@ public class EnemyShipManager : MonoBehaviour
         {
             // Starts the coroutine to spawn in this group of enemies
             StartCoroutine(SpawnEnemyGroup(enemyGroup));
-
             // Locks this coroutine from spawning new enemy groups before the current group has finished spawning. 
-            while (spawningGroup)
-            {
-                yield return new WaitForEndOfFrame();
-            }
+            while (spawningGroup) { yield return new WaitForEndOfFrame(); }
         }
 
         waveState = WaveState.Attacking;
@@ -91,9 +107,14 @@ public class EnemyShipManager : MonoBehaviour
         spawningGroup = true;
 
         SpaceEnemyHealth enemyToSpawn = enemy;
+        SpaceEnemyLogic enemyLogic = enemyToSpawn.GetComponent<SpaceEnemyLogic>();
         int enemyQuantity = enemyGroup.groupCoordinates.Length;
-        Route eRoute = entranceRoute;
-        Route aRoute = attackRoute;
+
+        // Decide which of the ship's available routes should be chosen for entering and attacking
+        int eChoice = Random.Range(0, enemyLogic.entranceRoutes.Count);
+        int aChoice = Random.Range(0, enemyLogic.attackRoutes.Count);
+        Route eRoute = enemyLogic.entranceRoutes[eChoice];
+        Route aRoute = enemyLogic.attackRoutes[aChoice];
 
         // Helper variables for the loop
         float spawnSpeed = 0.5f;

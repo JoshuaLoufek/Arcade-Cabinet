@@ -9,15 +9,16 @@ using UnityEngine;
 
 // https://www.youtube.com/watch?v=11ofnLOE8pw
 // https://www.youtube.com/watch?v=aVwxzDHniEw
+// https://www.youtube.com/watch?v=jvPPXbo87ds
 // https://gamedev.stackexchange.com/questions/27056/how-to-achieve-uniform-speed-of-movement-on-a-bezier-curve
 
 // https://math.stackexchange.com/questions/877725/retrieve-the-initial-cubic-b%c3%a9zier-curve-subdivided-in-two-b%c3%a9zier-curves/879213#879213
 // Bezier curves with "C2 Continuity" means that they meet smoothly (C0), have the same tangent direction (C1), and share the same curvature at the point they join (C2)
 // This principle will help me generate dynamic bezier curves that properly flow together.
-    // https://stackoverflow.com/questions/12295773/joining-two-b%C3%A9zier-curves-smoothly-c2-continuous
-    // C0 continuity: P3 = Q0
-    // C1 continuity: P2 - P3 = Q0 - Q1
-    // C2 continuity: P1 - 2 * P2 + P3 = Q0 - 2 * Q1 + Q2
+// https://stackoverflow.com/questions/12295773/joining-two-b%C3%A9zier-curves-smoothly-c2-continuous
+// C0 continuity: P3 = Q0
+// C1 continuity: P2 - P3 = Q0 - Q1
+// C2 continuity: P1 - 2 * P2 + P3 = Q0 - 2 * Q1 + Q2
 
 public enum EnemyShipState
 {
@@ -32,11 +33,15 @@ public enum EnemyShipState
 public class SpaceEnemyLogic : MonoBehaviour
 {
     // INFORMATION INTRINSIC TO THIS SHIP
-    
+
     // Each enemy prefab contains a list of available entrance and attack routes that it can follow. 
-    public List<Route> entranceRoutes;
-    public List<Route> attackRoutes;
-    
+    [SerializeField] public List<Route> entranceRoutes;
+    [SerializeField] public List<Route> attackRoutes;
+
+    // Once the routes are chosen from the list they are assigned to these variables here.
+    private Route entranceRoute;
+    private Route attackRoute;
+
     // Control variables for the enemy state machine
     private EnemyShipState state;
     private bool newBehaviorAllowed; // Stops a new behvaior coroutine from starting when one is already in progress
@@ -51,8 +56,7 @@ public class SpaceEnemyLogic : MonoBehaviour
 
     // Outdated variables that will be replaced with the lists of routes above -------------------
 
-    [SerializeField] private Route entranceRoute;
-    [SerializeField] private Route attackRoute;
+    
 
 
     private void Awake()
@@ -64,7 +68,7 @@ public class SpaceEnemyLogic : MonoBehaviour
 
     // This is the enemy state machine. Eventually the enemy manager will control the preparing and attacking behavior.
     // Every frame the ship checks if it currently has an active behavior. If it doesn't, it attempts to start the next one in the sequence.
-    private void Update()
+    private void FixedUpdate()
     {
         if (newBehaviorAllowed) // Every frame the ship tries to start a new behavior. However, if a behavior is already active then a new one can't be started.
         {

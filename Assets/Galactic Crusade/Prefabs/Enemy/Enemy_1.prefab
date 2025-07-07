@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 5413104505468872225}
   - component: {fileID: 3311855467497514839}
-  - component: {fileID: 2133746074815812547}
-  - component: {fileID: 7148533226041071478}
   - component: {fileID: 7150295308141749718}
   - component: {fileID: 4325293089727577662}
+  - component: {fileID: 2133746074815812547}
+  - component: {fileID: 7148533226041071478}
   m_Layer: 7
-  m_Name: BezierEnemy
+  m_Name: Enemy_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 6776790157958583011}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1000, y: 1000, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -88,34 +88,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2133746074815812547
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6776790157958583011}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae4640687c8a9a247a5592881741d8c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  entranceRoute: {fileID: 0}
-  attackRoute: {fileID: 0}
-  restingLocation: {x: 0, y: 0}
-  speed: 2
---- !u!114 &7148533226041071478
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6776790157958583011}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3dab62c91d4e43845b0a62a58f61410f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!50 &7150295308141749718
 Rigidbody2D:
   serializedVersion: 4
@@ -188,3 +160,34 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.63461226, y: 0.6329744}
   m_EdgeRadius: 0
+--- !u!114 &2133746074815812547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6776790157958583011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae4640687c8a9a247a5592881741d8c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  entranceRoutes:
+  - {fileID: 2202277548509617921, guid: 6d9dc201b73900f478714cd88ed2194f, type: 3}
+  - {fileID: 1719982576880120647, guid: 4821779842fc56349bb9696faccd4e7f, type: 3}
+  attackRoutes:
+  - {fileID: 7684107790914763783, guid: 6cd7592abec178643ad13a0edf4da32d, type: 3}
+  - {fileID: 6359972554570446132, guid: 92a1efd82afd70541ac5c810c3aa15f6, type: 3}
+  speed: 3
+--- !u!114 &7148533226041071478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6776790157958583011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dab62c91d4e43845b0a62a58f61410f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
