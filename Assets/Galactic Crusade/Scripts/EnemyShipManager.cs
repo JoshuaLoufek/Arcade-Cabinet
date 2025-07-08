@@ -28,9 +28,6 @@ public class EnemyShipManager : MonoBehaviour
     private float shipSpacing = 1.5f;
     public Transform center;
     public SpaceEnemyHealth enemy;
-    public Route entranceRoute;
-    public Route attackRoute;
-    public Route testRoute;
 
     private bool coroutineAllowed = true;
     private bool spawningGroup = false;
