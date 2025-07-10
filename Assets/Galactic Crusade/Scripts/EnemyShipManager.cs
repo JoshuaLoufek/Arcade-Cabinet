@@ -25,7 +25,7 @@ public class EnemyShipManager : MonoBehaviour
     private Vector2[,] restingLocationArray; // This holds the list of coordinates that a ship can be positioned at.
     private LocationState[,] statusArray; // This holds the information about whether or not that position has been assigned or not. 
 
-    private float shipSpacing = 1.5f;
+    private float shipSpacing = 0.9f;
     public Transform center;
     public SpaceEnemyHealth enemy;
 

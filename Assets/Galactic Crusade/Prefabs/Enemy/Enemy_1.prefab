@@ -178,7 +178,9 @@ MonoBehaviour:
   attackRoutes:
   - {fileID: 7684107790914763783, guid: 6cd7592abec178643ad13a0edf4da32d, type: 3}
   - {fileID: 6359972554570446132, guid: 92a1efd82afd70541ac5c810c3aa15f6, type: 3}
-  speed: 3
+  - {fileID: 7194965864796778061, guid: 6619c0eacecbd4d4d879700e18055071, type: 3}
+  - {fileID: 8566875882054816714, guid: 2cdb8e75f9746e249a56880e0de83ac6, type: 3}
+  speed: 2
 --- !u!114 &7148533226041071478
 MonoBehaviour:
   m_ObjectHideFlags: 0
