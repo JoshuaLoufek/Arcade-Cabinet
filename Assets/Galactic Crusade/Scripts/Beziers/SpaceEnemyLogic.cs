@@ -53,6 +53,7 @@ public class SpaceEnemyLogic : MonoBehaviour
     // INFORMATION RECEIVED FROM THE ENEMY SHIP MANAGER
     private Vector2 restingLocation;
     private bool attackSignal;
+    private EnemyShipManager enemyShipManager;
 
     // Outdated variables that will be replaced with the lists of routes above -------------------
 
@@ -115,6 +116,7 @@ public class SpaceEnemyLogic : MonoBehaviour
                 break;
             // After settling the ship is in it's resting location
             case EnemyShipState.Settling:
+                enemyShipManager.MakeShipAvailable(this.GetComponent<SpaceEnemyHealth>());
                 state = EnemyShipState.Resting;
                 break;
             // After resting the ship must prepare to attack
@@ -131,25 +133,24 @@ public class SpaceEnemyLogic : MonoBehaviour
                 break;
             // Upon returning the ship is in the resting state
             case EnemyShipState.Returning:
+                enemyShipManager.MakeShipAvailable(this.GetComponent<SpaceEnemyHealth>());
                 state = EnemyShipState.Resting;
                 break;
         }
     }
 
+    // Acts as a lock to keep the ship in resting mode until it recieves commands the Enemy Ship Manager.
     private IEnumerator RestingState()
     {
         newBehaviorAllowed = false;
 
-        // TEMP CODE: Wait in the resting position for three seconds.
-        float timer = 0f;
-        while (timer < 10f)
+        // Remain in the waiting state until the ship manager gives the signal to attack
+        while (attackSignal == false)
         {
-            timer += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
 
-        // In the future this will act as a lock to keep the ship in resting mode until it recieves commands the Enemy Ship Manager.
-
+        SetAttackSignal(false); // Turn the attack signal back to false
         ProgressToNextState(); // Updates the ship to follow a next state in the process.
         newBehaviorAllowed = true; // Frees up the ship to start a new behavior
     }
@@ -333,6 +334,8 @@ public class SpaceEnemyLogic : MonoBehaviour
     // END - TravelThePath Helper Functions
 
     // Getters and Setters for Private Variables
+    public EnemyShipState GetShipState() { return state; }
+
     public void SetEntranceRoute(Route route) { entranceRoute = route; }
 
     public void SetAttackRoute(Route route) { attackRoute = route; }
@@ -340,4 +343,6 @@ public class SpaceEnemyLogic : MonoBehaviour
     public void SetRestingLocation(Vector2 location) { restingLocation = location; }
 
     public void SetAttackSignal(bool signal) { attackSignal = signal; }
+
+    public void SetEnemyShipManager(EnemyShipManager manager) { enemyShipManager = manager; }
 }
