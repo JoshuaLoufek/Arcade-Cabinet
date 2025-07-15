@@ -32,8 +32,9 @@ public enum EnemyShipState
 
 public class SpaceEnemyLogic : MonoBehaviour
 {
+    // GLOBAL VARIABLES ===========================================================================
+    
     // INFORMATION INTRINSIC TO THIS SHIP
-
     // Each enemy prefab contains a list of available entrance and attack routes that it can follow. 
     [SerializeField] public List<Route> entranceRoutes;
     [SerializeField] public List<Route> attackRoutes;
@@ -55,10 +56,7 @@ public class SpaceEnemyLogic : MonoBehaviour
     private bool attackSignal;
     private EnemyShipManager enemyShipManager;
 
-    // Outdated variables that will be replaced with the lists of routes above -------------------
-
-    
-
+    // FUNCTIONS START HERE =======================================================================
 
     private void Awake()
     {
