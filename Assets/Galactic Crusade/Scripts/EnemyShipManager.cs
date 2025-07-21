@@ -215,7 +215,7 @@ public class EnemyShipManager : MonoBehaviour
     // This function will be invoked whenever a coroutine needs to create an enemy. It is told what enemy prefab will be used and what entrance route to take
     private void SpawnEnemy(SpaceEnemyHealth enemy, Route entranceRoute, Route attackRoute, Vector2 arrayPosition)
     {
-        SpaceEnemyHealth newEnemy = Instantiate(enemy, this.transform);
+        SpaceEnemyHealth newEnemy = Instantiate(enemy, new Vector3(1000f, 1000f, 0f), new Quaternion(0f, 0f, 0f, 0f), this.transform);
         newEnemy.GetComponent<SpaceEnemyLogic>().SetEntranceRoute(entranceRoute);
         newEnemy.GetComponent<SpaceEnemyLogic>().SetAttackRoute(attackRoute);
         newEnemy.GetComponent<SpaceEnemyLogic>().SetRestingLocation(restingLocationArray[(int)arrayPosition.x, (int)arrayPosition.y] + new Vector2(center.transform.position.x, center.transform.position.y));
