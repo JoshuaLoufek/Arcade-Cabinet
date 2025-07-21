@@ -151,12 +151,29 @@ public class EnemyShipManager : MonoBehaviour
         {
             // Starts the coroutine to spawn in this group of enemies
             StartCoroutine(SpawnEnemyGroup(enemyGroup));
-            // Locks this coroutine from spawning new enemy groups before the current group has finished spawning. 
+
+            // Locks this coroutine and prevents it from spawning new enemy groups before the current group has finished spawning. 
             while (spawningGroup) { yield return new WaitForEndOfFrame(); }
+
+            // Before 1. [spawning the next wave] or 2. [releasing control to the attack behavior] I need to make sure all LIVING enemies have reached the formation.
+            while (CheckIfAllEnemiesAreInFormation() == false) { yield return new WaitForSecondsRealtime(0.25f); } // Doesn't need to be checked every frame
+
+            // Gives some breathing room before the next wave spawns or the attack behavior begins.
+            yield return new WaitForSecondsRealtime(0.5f);
         }
 
         waveState = WaveState.Attacking;
         coroutineAllowed = true;
+    }
+
+    private bool CheckIfAllEnemiesAreInFormation()
+    {
+        foreach (SpaceEnemyHealth enemy in availableEnemyList)
+        {
+            if (enemy.GetComponent<SpaceEnemyLogic>().GetShipState() == EnemyShipState.Resting) continue;
+            else return false;
+        }
+        return true;
     }
 
     private IEnumerator SpawnEnemyGroup(EnemyGroup enemyGroup)
