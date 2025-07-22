@@ -56,6 +56,10 @@ public class SpaceEnemyLogic : MonoBehaviour
     private bool attackSignal;
     private EnemyShipManager enemyShipManager;
 
+    private float minAngle = float.PositiveInfinity;
+    private float maxAngle = float.NegativeInfinity;
+
+
     // FUNCTIONS START HERE =======================================================================
 
     private void Awake()
@@ -330,6 +334,48 @@ public class SpaceEnemyLogic : MonoBehaviour
         } // NOTE - I understand the math behind this, but there was some guesswork involved to set up the if/else statement properly. May wish to revise in the future.
     }
     // END - TravelThePath Helper Functions
+
+    void RotateObject_SetAngles(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float oldT)
+    {
+        // These are the derivative vectors that determine velocity 
+        Vector2 v1 = (-3 * p0) + (9 * p1) - (9 * p2) + (3 * p3);
+        Vector2 v2 = (6 * p0) - (12 * p1) + (6 * p2);
+        Vector2 v3 = (-3 * p0) + (3 * p1);
+
+        Vector2 velocityVector = (oldT * oldT * v1 + oldT * v2 + v3);
+
+        float intendedAngle = Mathf.Atan(velocityVector.x / velocityVector.y) * Mathf.Rad2Deg;
+
+        // Exit case to skip rotation whenever the arctangent would return a non existent value
+        if (float.IsNaN(intendedAngle) || intendedAngle == Mathf.Infinity || intendedAngle == Mathf.NegativeInfinity) return;
+
+        //Debug.Log("Intended Angle is: " + intendedAngle);
+
+        // I need to find a way to translate this into an "actual" angle so it's easier to work with
+        float actualAngle;
+        if (velocityVector.y <= 0) actualAngle = -intendedAngle;
+        else actualAngle = -intendedAngle + 180f;
+
+        Debug.Log("Actual Angle is: " + actualAngle);
+
+        float fixedAngle;
+        if (actualAngle > maxAngle) maxAngle = actualAngle;
+        if (actualAngle < minAngle) minAngle = actualAngle;
+
+        Debug.Log("Largest Angle Recorded: " + maxAngle + "\nSmallest Angle Recorded: " + minAngle);
+
+        if (actualAngle > 247.5f || actualAngle <= -67.5f) fixedAngle = 270f;
+        else if (actualAngle > -67.5f && actualAngle <= -22.5f) fixedAngle = -45f;
+        else if (actualAngle > -22.5f && actualAngle <= 22.5f) fixedAngle = 0f;
+        else if (actualAngle > 22.5f && actualAngle <= 67.5f) fixedAngle = 45f;
+        else if (actualAngle > 67.5f && actualAngle <= 112.5f) fixedAngle = 90f;
+        else if (actualAngle > 112.5f && actualAngle <= 157.5f) fixedAngle = 135f;
+        else if (actualAngle > 157.5f && actualAngle <= 202.5f) fixedAngle = 180f;
+        else if (actualAngle > 202.5f && actualAngle <= 247.5f) fixedAngle = 225f;
+        else fixedAngle = 0f;
+
+        transform.rotation = Quaternion.Euler(0, 0, fixedAngle);
+    }
 
     // Getters and Setters for Private Variables
     public EnemyShipState GetShipState() { return state; }

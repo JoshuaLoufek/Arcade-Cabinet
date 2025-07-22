@@ -123,6 +123,7 @@ public class EnemyShipManager : MonoBehaviour
         // Remove destroyed objects from the lists
         availableEnemyList.RemoveAll(s => s == null);
         attackingEnemyList.RemoveAll(s => s == null);
+
         // If the manager is done spawning enemies (in attack mode) and the enemy list is empty, signal that all enemies have been defeated.
         if (availableEnemyList.Count == 0 && attackingEnemyList.Count == 0 && waveState == WaveState.Attacking)
         {
@@ -156,7 +157,7 @@ public class EnemyShipManager : MonoBehaviour
             while (spawningGroup) { yield return new WaitForEndOfFrame(); }
 
             // Before 1. [spawning the next wave] or 2. [releasing control to the attack behavior] I need to make sure all LIVING enemies have reached the formation.
-            while (CheckIfAllEnemiesAreInFormation() == false) { yield return new WaitForSecondsRealtime(0.25f); } // Doesn't need to be checked every frame
+            while (AllEnemiesAreInFormation() == false) { yield return new WaitForSecondsRealtime(0.25f); } // Doesn't need to be checked every frame
 
             // Gives some breathing room before the next wave spawns or the attack behavior begins.
             yield return new WaitForSecondsRealtime(0.5f);
@@ -166,7 +167,8 @@ public class EnemyShipManager : MonoBehaviour
         coroutineAllowed = true;
     }
 
-    private bool CheckIfAllEnemiesAreInFormation()
+    // This is called before the script starts the attack behavior. Doesn't account for any enemies that might be in attack mode.
+    private bool AllEnemiesAreInFormation()
     {
         foreach (SpaceEnemyHealth enemy in availableEnemyList)
         {
