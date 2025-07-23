@@ -108,12 +108,14 @@ public class SpaceshipController : MonoBehaviour
         if (xMovementValue == 0 && yMovementValue == 0) { isMoving = false; }
         else { isMoving = true; }
 
+        /*
         // For diagonal movement we need to decrease how far is moved on the x and y axis.
         if (Mathf.Abs(xMovementValue) == 1 && Mathf.Abs(yMovementValue) == 1)
         {   // 0.7071 is an approximation of sqrt(1/2) which is derived from the pythagorean theorem where c=1 and a=b. c=1 because we want the player to move at "1 speed" in the diagonal c direction
             xMovementValue = 0.7071f * xMovementValue;
             yMovementValue = 0.7071f * yMovementValue;
         }
+        */
 
         // now set up the ship movement vector
         shipMovement.x = xMovementValue;

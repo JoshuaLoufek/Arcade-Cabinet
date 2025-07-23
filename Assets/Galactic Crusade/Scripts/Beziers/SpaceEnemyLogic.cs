@@ -309,14 +309,14 @@ public class SpaceEnemyLogic : MonoBehaviour
         return position;
     }
 
-    void RotateObject(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float oldT)
+    void RotateObject(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
     {
         // These are the derivative vectors that determine velocity 
         Vector2 v1 = (-3 * p0) + (9 * p1) - (9 * p2) + (3 * p3);
         Vector2 v2 = (6 * p0) - (12 * p1) + (6 * p2);
         Vector2 v3 = (-3 * p0) + (3 * p1);
 
-        Vector2 velocityVector = (oldT * oldT * v1 + oldT * v2 + v3);
+        Vector2 velocityVector = (time * time * v1 + time * v2 + v3);
 
         float intendedAngle = Mathf.Atan(velocityVector.x / velocityVector.y) * Mathf.Rad2Deg;
 
@@ -324,25 +324,27 @@ public class SpaceEnemyLogic : MonoBehaviour
         if (float.IsNaN(intendedAngle) || intendedAngle == Mathf.Infinity || intendedAngle == Mathf.NegativeInfinity) return;
 
         // Set rotation to the intended angle with an offset
-        if (velocityVector.y <= 0)
-        {
-            transform.rotation = Quaternion.Euler(0,0, -intendedAngle);
-        }
-        else
-        {
-            transform.rotation = Quaternion.Euler(0, 0, -intendedAngle + 180f);
-        } // NOTE - I understand the math behind this, but there was some guesswork involved to set up the if/else statement properly. May wish to revise in the future.
+        float actualAngle;
+        if (velocityVector.y <= 0) actualAngle = -intendedAngle;
+        else actualAngle = -intendedAngle + 180f;
+        // NOTE 1 - I understand the math behind this, but there was some guesswork involved to set up the if/else statement properly. May wish to revise in the future.
+        // NOTE 2 - It's become clear that the range of actual angle is (-90, 270) non-inclusive. Why? I'm not entirely sure, but it's working.
+        // NOTE 3 - Tthe negative velocity vector has a range of (-90, 90), so when we look at the poistive y velocity vector that has a range of (90, 270).
+
+        transform.rotation = Quaternion.Euler(0, 0, actualAngle);
     }
     // END - TravelThePath Helper Functions
 
-    void RotateObject_SetAngles(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float oldT)
+    // This function is designed to be able to roatate the sprite at fixed angle intervals. It looks bad though at such large intervals and without custom in-between sprites.
+    // CURRENTLY UNUSED
+    void RotateObject_SetAngles(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
     {
         // These are the derivative vectors that determine velocity 
         Vector2 v1 = (-3 * p0) + (9 * p1) - (9 * p2) + (3 * p3);
         Vector2 v2 = (6 * p0) - (12 * p1) + (6 * p2);
         Vector2 v3 = (-3 * p0) + (3 * p1);
 
-        Vector2 velocityVector = (oldT * oldT * v1 + oldT * v2 + v3);
+        Vector2 velocityVector = (time * time * v1 + time * v2 + v3);
 
         float intendedAngle = Mathf.Atan(velocityVector.x / velocityVector.y) * Mathf.Rad2Deg;
 
