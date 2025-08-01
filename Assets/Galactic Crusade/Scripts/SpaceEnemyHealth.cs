@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SpaceEnemyHealth : MonoBehaviour, IDamageable
 {
+    [SerializeField] private int health;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -18,6 +20,7 @@ public class SpaceEnemyHealth : MonoBehaviour, IDamageable
 
     public void Damage(float damage)
     {
-        Destroy(this.gameObject);
+        health -= (int)damage;
+        if (health < 0) Destroy(this.gameObject);
     }
 }

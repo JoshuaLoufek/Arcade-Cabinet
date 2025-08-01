@@ -329,7 +329,7 @@ public class SpaceEnemyLogic : MonoBehaviour
         else actualAngle = -intendedAngle + 180f;
         // NOTE 1 - I understand the math behind this, but there was some guesswork involved to set up the if/else statement properly. May wish to revise in the future.
         // NOTE 2 - It's become clear that the range of actual angle is (-90, 270) non-inclusive. Why? I'm not entirely sure, but it's working.
-        // NOTE 3 - Tthe negative velocity vector has a range of (-90, 90), so when we look at the poistive y velocity vector that has a range of (90, 270).
+        // NOTE 3 - The negative velocity vector has a range of (-90, 90), so when we look at the poistive y velocity vector that has a range of (90, 270).
 
         transform.rotation = Quaternion.Euler(0, 0, actualAngle);
     }
