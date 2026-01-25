@@ -335,7 +335,7 @@ public class SpaceEnemyLogic : MonoBehaviour
     }
     // END - TravelThePath Helper Functions
 
-    // This function is designed to be able to roatate the sprite at fixed angle intervals. It looks bad though at such large intervals and without custom in-between sprites.
+    // This function is designed to be able to rotate the sprite at fixed angle intervals. It looks bad though at such large intervals and without custom in-between sprites.
     // CURRENTLY UNUSED
     void RotateObject_SetAngles(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float time)
     {
